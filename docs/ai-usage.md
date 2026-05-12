@@ -24,6 +24,9 @@ This file records every meaningful use of AI tools during the project.
 | 2026-05-07 | Copilot | Sprint planning | Create 6-day sprint plan with daily tasks, milestones, and success criteria | Plan reviewed against deadline and team capacity |
 | 2026-05-07 | Copilot | Dataset search | Write step-by-step guide for finding datasets from 5 sources (HF, Kaggle, Google, PWC, TÜİK) | Guide reviewed for clarity and completeness |
 | 2026-05-08 | Copilot | Dataset download & preprocessing | Load `isakulaksiz/turkish-fake-news-detection` via `datasets.load_dataset`, saved raw CSV and created processed `train.csv`/`test.csv` (80/20 stratified) | Human verified saved files in `data/raw` and `data/processed` |
+| 2026-05-12 | Copilot | Scripts & automation | Add `src/preprocessing.py`, `scripts/generate_sample_for_review.py`, and `scripts/download_prepare_dataset.py`; added `.gitignore` policy for raw data | Human reviewed files and ran scripts locally |
+| 2026-05-12 | Copilot | Baseline training | Added `src/train_tfidf.py`, ran TF-IDF baseline and saved metrics/models/figure | Human verified metrics saved in `results/` and models in `models/` |
+| 2026-05-12 | Copilot | Documentation | Added `docs/usage.md` and `docs/ai-report.md` summarizing actions and usage steps | Human verified and accepted |
 
 ## Reporting Rule
 

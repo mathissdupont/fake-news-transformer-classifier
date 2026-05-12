@@ -1,0 +1,2 @@
+Model,Classifier,Accuracy,Precision,Recall,F1-Score,True_Negatives,False_Positives,False_Negatives,True_Positives
+tfidf,LogisticRegression,0.9380863039399625,0.9594882729211087,0.9054325955734407,0.9316770186335404,550,19,47,450
