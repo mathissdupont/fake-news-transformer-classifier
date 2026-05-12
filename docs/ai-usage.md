@@ -19,6 +19,11 @@ This file records every meaningful use of AI tools during the project.
 | 2026-04-26 | Copilot | Workflow design | Split the project into three independent work packages and define the AI logging standard | Split reviewed against project scope and requirements |
 | 2026-05-01 | Copilot | Task expansion | Add dataset sourcing rules and more explicit responsibilities for each teammate | Updated split reviewed against the project document |
 | 2026-05-05 | Copilot | Role planning | Add pre-coding research tasks, code responsibilities, and example keywords for all teammates | Section reviewed in the team split document |
+| 2026-05-06 | Copilot | Template creation | Create dataset link README, results template, reproducibility checklist, and research notes | Templates reviewed against project requirements |
+| 2026-05-07 | Copilot | Documentation | Write comprehensive Turkish project overview explaining all technical terms and project goals | Overview reviewed for clarity and completeness |
+| 2026-05-07 | Copilot | Sprint planning | Create 6-day sprint plan with daily tasks, milestones, and success criteria | Plan reviewed against deadline and team capacity |
+| 2026-05-07 | Copilot | Dataset search | Write step-by-step guide for finding datasets from 5 sources (HF, Kaggle, Google, PWC, TÜİK) | Guide reviewed for clarity and completeness |
+| 2026-05-08 | Copilot | Dataset download & preprocessing | Load `isakulaksiz/turkish-fake-news-detection` via `datasets.load_dataset`, saved raw CSV and created processed `train.csv`/`test.csv` (80/20 stratified) | Human verified saved files in `data/raw` and `data/processed` |
 
 ## Reporting Rule
 

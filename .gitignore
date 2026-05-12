@@ -3,7 +3,9 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 data/raw/
-data/processed/
+# Keep processed files under version control but ignore large raw downloads
+# If you prefer to ignore processed as well, re-enable the next line
+# data/processed/
 models/
 reports/figures/
 reports/*.pdf
