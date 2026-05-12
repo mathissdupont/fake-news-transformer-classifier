@@ -1,0 +1,9 @@
+{
+  "total_rows": 5326,
+  "train_size": 4260,
+  "test_size": 1066,
+  "train_ratio": 0.8,
+  "test_ratio": 0.2,
+  "random_state": 42,
+  "stratified": true
+}

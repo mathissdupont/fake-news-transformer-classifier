@@ -24,6 +24,10 @@
 
 **Tampon:** 5 gün düzeltme ve ek çalışma (deadline 22 Mayıs saat 23:59)
 
+**Güncel durum:** 12 Mayıs 2026 itibarıyla GÜN 1 büyük ölçüde tamamlandı; TF-IDF baseline ve altyapı işlerinin bir kısmı planın önüne geçti.
+
+**Öğrenme notu:** Hızlı ilerlemek iyi, ama her tamamlanan işin sonunda kısa bir not yazıp neden o yolu seçtiğimizi anlamamız gerekiyor.
+
 ---
 
 ## GÜN 1: BUGÜN
@@ -33,43 +37,52 @@ Dataset bulma ve karar verme + Araştırma başlatma
 
 ### Kişi 1 (Veri)
 **Sabah (2-3 saat):**
-- [ ] Hocanın önerdiği 5 kaynağı aç (HF, Kaggle, Google Dataset Search, Papers With Code, TÜİK)
-- [ ] "Turkish fake news" ve "WELFake" arat
-- [ ] En az 3 aday dataset bul (metin + ikili etiket şartı)
-- [ ] Hangi dataseti seçeceğini yazılı not et
+- [x] Hocanın önerdiği 5 kaynağı aç (HF, Kaggle, Google Dataset Search, Papers With Code, TÜİK)
+- [x] "Turkish fake news" ve "WELFake" arat
+- [x] En az 3 aday dataset bul (metin + ikili etiket şartı)
+- [x] Hangi dataseti seçeceğini yazılı not et
 
 **Öğleden sonra (2-3 saat):**
-- [ ] Seçilen dataseti indir (raw veri)
-- [ ] `data/raw/` klasörüne koy
-- [ ] Satır sayısı, kolon adları, label dağılımını not et
-- [ ] `data/README_dataset_link.txt` dosyasını doldur
-- [ ] Seçimi `docs/decisions.md` içine yazılı tuttur
+- [x] Seçilen dataseti indir (raw veri)
+- [x] `data/raw/` klasörüne koy
+- [x] Satır sayısı, kolon adları, label dağılımını not et
+- [x] `data/README_dataset_link.txt` dosyasını doldur
+- [x] Seçimi `docs/decisions.md` içine yazılı tuttur
 
 **Teslim:** Dataset dosyası + link bilgisi + veri özeti
 
+**Durum Notu:** `data/processed/train.csv`, `data/processed/test.csv` ve `data/processed/split_info.json` hazır; 80/20 stratified split random_state=42 ile sabitlendi.
+
 ### Kişi 2 (Model)
 **Sabah-Öğleden sonra (3-4 saat):**
-- [ ] "Sentence-BERT" ve "paraphrase-multilingual" ara
-- [ ] Hangi embedding modelini kullanacağını kararlaştır
-- [ ] Model adını `docs/decisions.md` içine yaz
-- [ ] Modeli test et (import et, çalışıp çalışmadığını kontrol et)
+- [x] "Sentence-BERT" ve "paraphrase-multilingual" ara
+- [x] Hangi embedding modelini kullanacağını kararlaştır
+- [x] Model adını `docs/decisions.md` içine yaz
+- [x] Modeli test et (import et, çalışıp çalışmadığını kontrol et)
 
 **Teslim:** Model seçim kararı + test notu
 
+**Durum Notu:** Embedding tarafında `paraphrase-multilingual-MiniLM-L12-v2` seçildi; eğitim scripti ve cache altyapısı hazır.
+
 ### Kişi 3 (Rapor)
 **Sabah-Öğleden sonra (3-4 saat):**
-- [ ] "IEEE citation format" örnekleri ara
-- [ ] Proje başlığına uygun 5 makale başlık ara
-- [ ] Rapor template taslağı yaz (kaç bölüm, kaç sayfa?)
+- [x] "IEEE citation format" örnekleri ara
+- [x] Proje başlığına uygun 5 makale başlık ara
+- [x] Rapor template taslağı yaz (kaç bölüm, kaç sayfa?)
 - [ ] `docs/research-notes.md` dosyasını başlat
 
 **Teslim:** Rapor taslağı + 5 makale adayı
+
+**Durum Notu:** Kaynak taraması başlatıldı; kalan iş, notları `docs/research-notes.md` içinde toplamak ve ilk bölüm taslağını genişletmek.
 
 **GÜNÜN SONU:** Takım toplantısı 1 saat
 - Veri seti onay
 - Model onay
 - Rapor planı onay
-- AI kullanımlarını `docs/ai-usage.md` güncelle
+- [x] AI kullanımlarını `docs/ai-usage.md` güncelle
+- Her kişi yaptığı işi 2-3 cümleyle özetleyip öğrenme notu eklesin
+
+**GÜN 1 Sonucu:** Planlanan veri/model hazırlığı tamamlandı, TF-IDF baseline plan dışı olarak erken eğitildi ve sonuçlar kaydedildi.
 
 ---
 
@@ -80,31 +93,35 @@ Veri temizleme ve preprocessing
 
 ### Kişi 1 (Veri)
 **Sabah (3-4 saat):**
-- [ ] Dataseti Python'da aç (pandas)
-- [ ] Eksik değerleri kontrol et
-- [ ] Duplikatlı satırları bul
-- [ ] Label dağılımını görselleştir (kaç sahte, kaç gerçek?)
-- [ ] Veri kalitesi notunu yaz
+- [x] Dataseti Python'da aç (pandas)
+- [x] Eksik değerleri kontrol et
+- [x] Duplikatlı satırları bul
+- [x] Label dağılımını görselleştir (kaç sahte, kaç gerçek?)
+- [x] Veri kalitesi notunu yaz
 
 **Öğleden sonra (3-4 saat):**
-- [ ] Temizleme kodunu yaz (eksik satırlar, duplikatlar, type casting)
-- [ ] Train/test split yap (80/20, stratified, random_state=42)
-- [ ] `data/processed/train.csv` ve `data/processed/test.csv` kaydet
-- [ ] `src/preprocessing.py` yazılı tut
+- [x] Temizleme kodunu yaz (eksik satırlar, duplikatlar, type casting)
+- [x] Train/test split yap (80/20, stratified, random_state=42)
+- [x] `data/processed/train.csv` ve `data/processed/test.csv` kaydet
+- [x] `src/preprocessing.py` yazılı tut
 
 **Teslim:** 
 - Temizlenmiş train/test dosyaları
 - Preprocessing script
 - Veri kalitesi raporu
 
+**Durum Notu:** Veri hattı tamamlandı; QC için `data/processed/sample_label_check.csv` ayrıca hazır.
+
 ### Kişi 2 (Model)
 **Sabah-Öğleden sonra (3-4 saat):**
-- [ ] Embedding modeli (paraphrase-multilingual) test et
+- [x] Embedding modeli (paraphrase-multilingual) test et
 - [ ] Train seti için embedding çıkar (demo olarak 100 örnek)
-- [ ] Runtime ve memory use'ı not et
-- [ ] Caching stratejisini planla
+- [x] Runtime ve memory use'ı not et
+- [x] Caching stratejisini planla
 
 **Teslim:** Test embedding + runtime notu
+
+**Durum Notu:** Demo test tamamlandı, tam embedding çalıştırması ve model eğitimi sıradaki iş.
 
 ### Kişi 3 (Rapor)
 **Sabah-Öğleden sonra (3-4 saat):**
@@ -113,6 +130,8 @@ Veri temizleme ve preprocessing
 - [ ] Rapor 2. bölüm (Background) başını yaz
 
 **Teslim:** Rapor ilk 2 bölümün taslağı
+
+**Durum Notu:** Bu iş paketi henüz tamamlanmadı; rapor yazımı, embedding sonuçları gelmeden de paralel ilerleyebilir.
 
 **GÜNÜN SONU:** Takım kontrol
 - Veri temizleme onay
@@ -129,16 +148,16 @@ TF-IDF baseline ve embedding eğitim başlatılması
 
 ### Kişi 1 (Veri)
 **Sabah (2-3 saat):**
-- [ ] TF-IDF + Logistic Regression script yaz
-- [ ] Train seti üzerinde eğit
-- [ ] Test seti üzerinde tahmin yap
-- [ ] Metrics hesapla (accuracy, precision, recall, F1)
-- [ ] Confusion matrix üret
+- [x] TF-IDF + Logistic Regression script yaz
+- [x] Train seti üzerinde eğit
+- [x] Test seti üzerinde tahmin yap
+- [x] Metrics hesapla (accuracy, precision, recall, F1)
+- [x] Confusion matrix üret
 
 **Öğleden sonra (2-3 saat):**
-- [ ] Sonuçları `results/tfidf_metrics.csv` olarak kaydet
-- [ ] Confusion matrix'i `results/confusion_matrix_tfidf.png` olarak kaydet
-- [ ] TF-IDF model'i `models/tfidf_model.pkl` olarak kaydet
+- [x] Sonuçları `results/tfidf_metrics.csv` olarak kaydet
+- [x] Confusion matrix'i `results/confusion_matrix_tfidf.png` olarak kaydet
+- [x] TF-IDF model'i `models/tfidf_model.pkl` olarak kaydet
 - [ ] Kısa hata analizi yaz
 
 **Teslim:**
@@ -147,12 +166,14 @@ TF-IDF baseline ve embedding eğitim başlatılması
 - Confusion matrix figürü
 - Baseline başarı oranı
 
+**Durum Notu:** Baseline tamamlandı; kısa hata analizi ve yazılı özet sonradan eklenmeli.
+
 ### Kişi 2 (Model)
 **Sabah (2-3 saat):**
-- [ ] Embedding extraction script yaz
+- [x] Embedding extraction script yaz
 - [ ] **Tüm** train seti için embedding çıkar
 - [ ] **Tüm** test seti için embedding çıkar
-- [ ] Embeddings'i cache et (numpy array olarak)
+- [x] Embeddings'i cache et (numpy array olarak)
 
 **Öğleden sonra (2-3 saat):**
 - [ ] Logistic Regression classifier eğit
@@ -165,6 +186,8 @@ TF-IDF baseline ve embedding eğitim başlatılması
 - Cached embeddings (test + train)
 - Logistic Regression + SVM metrikleri
 
+**Durum Notu:** Script ve cache altyapısı hazır; tam eğitim, embedding çıktıları alındıktan sonra çalıştırılacak.
+
 ### Kişi 3 (Rapor)
 **Sabah-Öğleden sonra (3-4 saat):**
 - [ ] Rapor 3. bölüm (Dataset & Preprocessing) yaz (asıl sonuçları bekliyorken)
@@ -172,6 +195,8 @@ TF-IDF baseline ve embedding eğitim başlatılması
 - [ ] 3 daha fazla makale oku ve özet yaz
 
 **Teslim:** Rapor 3-4. bölümün taslağı
+
+**Durum Notu:** Bu bölüm, embedding sonuçları hazır oldukça doldurulmalı.
 
 **GÜNÜN SONU:** Takım kontrol
 - TF-IDF sonuçları incelensin
@@ -188,10 +213,12 @@ Tüm model sonuçları tamamlanması
 ### Kişi 1 (Veri)
 **Sabah-Öğleden sonra (2-3 saat):**
 - [ ] Random Forest'ı test et (isteğe bağlı, zaman kalıyorsa)
-- [ ] Tüm sonuçları kontrol et
-- [ ] Veri ve baseline bölümü bitirildi mi kontrol et
+- [x] Tüm sonuçları kontrol et
+- [x] Veri ve baseline bölümü bitirildi mi kontrol et
 
 **Teslim:** Tamamlanmış baseline görevler
+
+**Durum Notu:** Bu kontrol paketi, Kişi 1'in veri ve baseline çıktılarının hazır olmasıyla kısmen tamamlandı.
 
 ### Kişi 2 (Model)
 **Sabah (2-3 saat):**
@@ -212,11 +239,13 @@ Tüm model sonuçları tamamlanması
 
 ### Kişi 3 (Rapor)
 **Sabah-Öğleden sonra (3-4 saat):**
-- [ ] Evaluation bölümü yazısı (Kişi 1 ve 2'nin sonuçlarını bekliyorken)
+- [x] Evaluation bölümü yazısı için iskelet hazırla (Kişi 1 ve 2'nin sonuçlarını bekliyorken)
 - [ ] 2 daha fazla makale oku
 - [ ] Bibliography draft tamamla (10+ kaynak)
 
 **Teslim:** Rapor evaluation bölümü
+
+**Durum Notu:** Evaluation script hazır; final tablo, embedding çıktıları geldikten sonra tamamlanacak.
 
 **GÜNÜN SONU:** Birleştirme başlasın
 - Tüm metrikleri Kişi 3 al
@@ -350,6 +379,7 @@ Eğer herhangi bir şey gecikmişse:
 ✓ Her gün deadline'lar tutulur
 ✓ AI günlüğü sürekli güncellenirse
 ✓ Son günde panic yapılmazsa
+✓ Plan dışı erken tamamlanan işler ayrı not edilirse
 
 **HAYIR, eğer:**
 
