@@ -28,12 +28,13 @@ Hangi AI Yardımı Kullanıldı
 Kısa Değerlendirme ve Notlar
 - TF-IDF baseline testi başarıyla çalıştı (Accuracy ~0.938, F1 ~0.932). Bu değerler rapora kaynak olarak kullanılabilir.
 - Label normalizasyonu heuristik tabanlı yapıldı; küçük bir manuel kontrol yapılması önerilir (ölçeklenebilir kalite kontrol prosedürü eklendi).
-- Embedding tabanlı modeller henüz çalıştırıldı; `src/train_embeddings.py` eklendi ve Person 2 tarafından çalıştırılmaya hazır.
+- Embedding tabanlı modeller çalıştırıldı; LR ve SVM metrikleri `results/` içine kaydedildi.
+- Final değerlendirme scripti çalıştırıldı; `results/final_results_table.csv` ve `results/f1_comparison.png` üretildi.
 
 Gelecek Adımlar
-1. Person 2: `src/train_embeddings.py` çalıştırılsın; sonuçlar `results/` içine kaydedilsin.
-2. Manuel QC: `data/processed/sample_label_check.csv` içindeki 20 örnek incelenip etiket doğruluğu onaylansın.
-3. Person 3: `src/evaluate.py` yazıp tüm metrikleri birleştirsin ve rapor için grafik/tablo üretsin.
+1. Manuel QC: `data/processed/sample_label_check.csv` içindeki 20 örnek incelenip etiket doğruluğu onaylansın.
+2. Person 3: final rapor metnini, kaynakçayı ve discussion/conclusion bölümlerini tamamlasın.
+3. Teslim öncesi reproducibility checklist temiz ortamda doğrulansın.
 
 İnsan Doğrulama
 - Bu rapor AI destekli çalışmanın özeti niteliğindedir. Tüm sonuçlar insan tarafından gözden geçirildi ve dosyalar `data/README_dataset_link.txt` ve `docs/decisions.md` içinde belgelendi.

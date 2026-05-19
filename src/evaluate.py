@@ -1,6 +1,9 @@
 """Evaluation script: aggregate metrics, generate figures, and prepare final results table."""
 import os
 import pandas as pd
+import matplotlib
+
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path

@@ -33,6 +33,7 @@ This file records every meaningful use of AI tools during the project.
 | 2026-05-12 | Copilot | Sprint plan update | Mark completed sprint items, add missing tasks, and align explanations with the current project state | Human review pending after this edit |
 | 2026-05-12 | Copilot | Process note update | Add a learning-focused note to the sprint plan so the team records why choices were made, not just what was finished | Human review pending after this edit |
 | 2026-05-12 | Copilot | Turkish summary note | Create a Turkish note summarizing what has been done so far and explaining technical terms in plain language | Human review pending after this edit |
+| 2026-05-19 | ChatGPT Codex | Execution and debugging | Set up local virtual environment, ran embedding training, fixed evaluation plotting backend, generated final metrics table and F1 comparison plot | Human should review generated `results/` files and updated docs |
 
 ## Reporting Rule
 

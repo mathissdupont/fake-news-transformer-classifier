@@ -24,7 +24,7 @@
 
 **Tampon:** 5 gün düzeltme ve ek çalışma (deadline 22 Mayıs saat 23:59)
 
-**Güncel durum:** 12 Mayıs 2026 itibarıyla GÜN 1 büyük ölçüde tamamlandı; TF-IDF baseline ve altyapı işlerinin bir kısmı planın önüne geçti.
+**Güncel durum:** 19 Mayıs 2026 itibarıyla veri hattı, TF-IDF baseline, embedding LR/SVM modelleri, final sonuç tablosu ve F1 karşılaştırma grafiği hazır.
 
 **Öğrenme notu:** Hızlı ilerlemek iyi, ama her tamamlanan işin sonunda kısa bir not yazıp neden o yolu seçtiğimizi anlamamız gerekiyor.
 
@@ -69,7 +69,7 @@ Dataset bulma ve karar verme + Araştırma başlatma
 - [x] "IEEE citation format" örnekleri ara
 - [x] Proje başlığına uygun 5 makale başlık ara
 - [x] Rapor template taslağı yaz (kaç bölüm, kaç sayfa?)
-- [ ] `docs/research-notes.md` dosyasını başlat
+- [x] `docs/research-notes.md` dosyasını başlat
 
 **Teslim:** Rapor taslağı + 5 makale adayı
 
@@ -115,13 +115,13 @@ Veri temizleme ve preprocessing
 ### Kişi 2 (Model)
 **Sabah-Öğleden sonra (3-4 saat):**
 - [x] Embedding modeli (paraphrase-multilingual) test et
-- [ ] Train seti için embedding çıkar (demo olarak 100 örnek)
+- [x] Train seti için embedding çıkar (demo olarak 100 örnek)
 - [x] Runtime ve memory use'ı not et
 - [x] Caching stratejisini planla
 
 **Teslim:** Test embedding + runtime notu
 
-**Durum Notu:** Demo test tamamlandı, tam embedding çalıştırması ve model eğitimi sıradaki iş.
+**Durum Notu:** Demo test ve tam embedding çalıştırması tamamlandı; sonuçlar `results/` altında.
 
 ### Kişi 3 (Rapor)
 **Sabah-Öğleden sonra (3-4 saat):**
@@ -158,7 +158,7 @@ TF-IDF baseline ve embedding eğitim başlatılması
 - [x] Sonuçları `results/tfidf_metrics.csv` olarak kaydet
 - [x] Confusion matrix'i `results/confusion_matrix_tfidf.png` olarak kaydet
 - [x] TF-IDF model'i `models/tfidf_model.pkl` olarak kaydet
-- [ ] Kısa hata analizi yaz
+- [x] Kısa hata analizi yaz
 
 **Teslim:**
 - TF-IDF script
@@ -171,22 +171,22 @@ TF-IDF baseline ve embedding eğitim başlatılması
 ### Kişi 2 (Model)
 **Sabah (2-3 saat):**
 - [x] Embedding extraction script yaz
-- [ ] **Tüm** train seti için embedding çıkar
-- [ ] **Tüm** test seti için embedding çıkar
+- [x] **Tüm** train seti için embedding çıkar
+- [x] **Tüm** test seti için embedding çıkar
 - [x] Embeddings'i cache et (numpy array olarak)
 
 **Öğleden sonra (2-3 saat):**
-- [ ] Logistic Regression classifier eğit
-- [ ] SVM classifier eğit
-- [ ] Her ikisinin tahminlerini al
-- [ ] Metrikleri hesapla
+- [x] Logistic Regression classifier eğit
+- [x] SVM classifier eğit
+- [x] Her ikisinin tahminlerini al
+- [x] Metrikleri hesapla
 
 **Teslim:**
 - Embedding extraction script
 - Cached embeddings (test + train)
 - Logistic Regression + SVM metrikleri
 
-**Durum Notu:** Script ve cache altyapısı hazır; tam eğitim, embedding çıktıları alındıktan sonra çalıştırılacak.
+**Durum Notu:** Script, cache altyapısı, tam eğitim ve LR/SVM metrikleri tamamlandı.
 
 ### Kişi 3 (Rapor)
 **Sabah-Öğleden sonra (3-4 saat):**
@@ -223,14 +223,14 @@ Tüm model sonuçları tamamlanması
 ### Kişi 2 (Model)
 **Sabah (2-3 saat):**
 - [ ] Random Forest classifier test et (eğer zaman varsa)
-- [ ] Tüm metrikleri `results/embedding_*_metrics.csv` kaydet
-- [ ] Tüm confusion matrix'leri `results/confusion_matrix_embedding_*.png` kaydet
-- [ ] Hata analizi yazılı tut
+- [x] Tüm metrikleri `results/embedding_*_metrics.csv` kaydet
+- [x] Tüm confusion matrix'leri `results/confusion_matrix_embedding_*.png` kaydet
+- [x] Hata analizi yazılı tut
 
 **Öğleden sonra (2-3 saat):**
-- [ ] Embedding görevlerini finalize et
+- [x] Embedding görevlerini finalize et
 - [ ] Runtime ve memory notlarını yaz
-- [ ] Kişi 3'e "sonuç dosyaları hazır" bilgisi ver
+- [x] Kişi 3'e "sonuç dosyaları hazır" bilgisi ver
 
 **Teslim:**
 - Tüm embedding metrikleri
@@ -241,11 +241,11 @@ Tüm model sonuçları tamamlanması
 **Sabah-Öğleden sonra (3-4 saat):**
 - [x] Evaluation bölümü yazısı için iskelet hazırla (Kişi 1 ve 2'nin sonuçlarını bekliyorken)
 - [ ] 2 daha fazla makale oku
-- [ ] Bibliography draft tamamla (10+ kaynak)
+- [x] Bibliography draft tamamla (10+ kaynak)
 
 **Teslim:** Rapor evaluation bölümü
 
-**Durum Notu:** Evaluation script hazır; final tablo, embedding çıktıları geldikten sonra tamamlanacak.
+**Durum Notu:** Evaluation script çalıştırıldı; `results/final_results_table.csv` ve `results/f1_comparison.png` hazır.
 
 **GÜNÜN SONU:** Birleştirme başlasın
 - Tüm metrikleri Kişi 3 al
@@ -269,12 +269,12 @@ Sonuçları birleştirme, karşılaştırma, rapor tamamlanması
 
 ### Kişi 3 (Rapor)
 **Sabah-Öğleden sonra (5-6 saat):**
-- [ ] Tüm metrikleri bir tabloda birleştir
+- [x] Tüm metrikleri bir tabloda birleştir
   - TF-IDF Accuracy, Precision, Recall, F1
   - Embedding LR Accuracy, Precision, Recall, F1
   - Embedding SVM Accuracy, Precision, Recall, F1
   - (Embedding RF - eğer yapıldıysa)
-- [ ] Sonuçları visualize et (karşılaştırma grafiği)
+- [x] Sonuçları visualize et (karşılaştırma grafiği)
 - [ ] TF-IDF vs Embedding'in hangisinin daha iyi olduğu yaz
 - [ ] Discussion bölümü tamamla
 - [ ] Conclusion bölümü tamamla
