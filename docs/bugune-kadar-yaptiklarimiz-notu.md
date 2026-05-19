@@ -16,7 +16,7 @@ Bu not, şimdiye kadar yaptıklarımızı kısa ve anlaşılır biçimde özetle
 - Bu bölmeyi yeniden üretilebilir yapmak için `random_state=42` kullandık.
 - TF-IDF tabanlı ilk modeli çalıştırdık.
 - Logistic Regression ile sonuç aldık ve metrikleri kaydettik.
-- Embedding tabanlı yaklaşım için model seçtik ve eğitim altyapısını hazırladık.
+- Embedding tabanlı yaklaşım için model seçtik, eğitim altyapısını hazırladık ve LR/SVM sonuçlarını ürettik.
 - Sonuçların toplanması için değerlendirme scripti hazırladık.
 - Takımın birlikte çalışabilmesi için kurulum ve iş akışı notları yazdık.
 - Yapay zekayı nasıl kullandığımızı ayrıca `docs/ai-usage.md` içinde kayda geçirdik.
@@ -83,20 +83,21 @@ Modelin hangi sınıfları ne kadar doğru veya yanlış tahmin ettiğini göste
 
 - Veri hattı hazır.
 - TF-IDF baseline tamamlandı.
-- Embedding çalışmaları için altyapı hazır.
-- Değerlendirme ve rapor yazımı için gereken dosyalar hazırlanıyor.
+- Embedding çalışmaları tamamlandı; LR ve SVM metrikleri kaydedildi.
+- Değerlendirme için final karşılaştırma tablosu ve F1 grafiği üretildi.
+- Rapor yazımı için gereken sonuç dosyaları büyük ölçüde hazır.
 
 ---
 
 ## 5. Bir Sonraki Adım
 
-- Embedding eğitimini çalıştırmak.
-- Sonuçları `results/` altında toplamak.
-- Karşılaştırma tablosunu çıkarmak.
+- `data/processed/sample_label_check.csv` içindeki örnekleri manuel kontrol etmek.
+- Kısa hata analizi yazmak.
+- Kaynakça ve final rapor bölümlerini tamamlamak.
 - Raporu yazarken bu notu teknik açıklama referansı olarak kullanmak.
 
 ---
 
 ## Kısa Özet
 
-Bugüne kadar veri setini hazır hale getirdik, ilk modeli kurduk, sonuçları kaydettik ve takımın paralel çalışabileceği altyapıyı oluşturduk. En önemli öğrenme noktası şu: hızlı ilerlemek mümkün, ama her adımın neden yapıldığını da not etmek gerekiyor.
+Bugüne kadar veri setini hazır hale getirdik, TF-IDF baseline'ı ve embedding modellerini çalıştırdık, sonuçları kaydettik ve rapor için karşılaştırma çıktıları ürettik. En önemli öğrenme noktası şu: hızlı ilerlemek mümkün, ama her adımın neden yapıldığını da not etmek gerekiyor.

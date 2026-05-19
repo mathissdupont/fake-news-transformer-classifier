@@ -1,8 +1,8 @@
 # AI Kullanım Özeti (Yüzeysel Rapor)
 
-**Tarih:** 2026-05-12  
+**Tarih:** 2026-05-19  
 **Proje:** CENG454 Fake News Detection  
-**AI Aracı:** GitHub Copilot
+**AI Aracı:** GitHub Copilot + ChatGPT Codex
 
 ---
 
@@ -13,8 +13,8 @@
 | **Planlama** | Proje yapısı, 3 kişilik iş bölümü | Tam Copilot ile | `docs/team-split.md`, `docs/decisions.md` hazır |
 | **Veri İndirme** | HF dataset indirme, temizleme, split | Copilot script yazdı | `data/processed/train.csv`, `test.csv` (4260/1066 satır) |
 | **TF-IDF Baseline** | Vectorization + Logistic Regression eğitimi | Copilot yazdı ve test etti | Accuracy: 93.8%, F1: 93.1% |
-| **Embedding Setup** | Sentence-BERT + LR/SVM scaffold | Copilot yazdı | `src/train_embeddings.py` çalıştırılmaya hazır |
-| **Altyapı** | Utils, caching, eval script | Copilot yazdı | `src/utils.py`, `src/embedding_utils.py`, `src/evaluate.py` |
+| **Embedding Models** | Sentence-BERT embeddings + LR/SVM eğitimi | Copilot/Codex | LR Accuracy: 90.4%, SVM Accuracy: 91.1% |
+| **Altyapı** | Utils, caching, eval script | Copilot/Codex | Embedding cache, final tablo ve F1 grafiği hazır |
 | **Dokümantasyon** | Takım rehberi, setup, kullanım talimatı | Copilot yazdı | `docs/setup-and-workflow.md` (150+ satır, Türkçe) |
 | **Loglama** | AI usage log'u | Copilot log kaydı yönetimi | `docs/ai-usage.md` 15+ girdi |
 
@@ -55,9 +55,11 @@
   - F1-Score: 0.9317 (gerçek)
   - Confusion Matrix: manually incelendi ✓
 
-- Embedding modelleri: henüz çalıştırılmadı, fakat Person 2 hazır script alacak
-  - `src/train_embeddings.py` → LR ve SVM test edilecek
-  - Cache mekanizması hazır (disk'te saklanacak)
+- Embedding modelleri: 4260 train örneği ve 1066 test örneği üzerinde gerçekten çalıştırıldı
+  - Logistic Regression Accuracy: 0.9043, F1-Score: 0.8984
+  - SVM Accuracy: 0.9109, F1-Score: 0.9043
+  - Cache dosyaları: `data/processed/embeddings_train.npy`, `data/processed/embeddings_test.npy`
+  - Confusion matrix dosyaları: `results/confusion_matrix_embedding_lr.png`, `results/confusion_matrix_embedding_svm.png`
 
 ---
 
@@ -67,7 +69,7 @@
 |-------|-----------|------------|-------|
 | Dataset Seçimi | HF'de Türkçe veri ara | Kabul — isakulaksiz/turkish-fake-news-detection | ✓ yapıldı |
 | TF-IDF + LR | Basit, başlangıç baseline | Kabul — tüm klasik baseline'lar test edilecek | ✓ yapıldı |
-| Embedding Modeli | paraphrase-multilingual-MiniLM-L12-v2 | Kabul — Türkçe/multilingual optimize | Hazır |
+| Embedding Modeli | paraphrase-multilingual-MiniLM-L12-v2 | Kabul — Türkçe/multilingual optimize | ✓ çalıştırıldı |
 | Split Stratejisi | 80/20 stratified, random_state=42 | Kabul — reproducibility önemli | ✓ yapıldı |
 | Dosya Yapısı | Standard: data/, src/, results/, docs/ | Kabul — team koordinasyonu sağlıyor | ✓ yapıldı |
 
@@ -92,13 +94,13 @@
 - → Örnek kontrol dosyasından 20 haber manuel kontrol et
 
 ### Person 2
-- → `python src/train_embeddings.py` çalıştır (~5-15 min CPU)
-- → LR ve SVM metriklerini `results/`'a kaydet
-- → TF-IDF ile karşılaştır (embedding daha iyi mi?)
+- ✓ `python src/train_embeddings.py` çalıştırıldı
+- ✓ LR ve SVM metrikleri `results/` altına kaydedildi
+- ✓ TF-IDF ile karşılaştırma için `results/final_results_table.csv` üretildi
 
 ### Person 3
-- → `python src/evaluate.py` çalıştır (tüm metrikleri topla)
-- → `final_results_table.csv` oluşturulacak
+- ✓ `python src/evaluate.py` çalıştırıldı
+- ✓ `final_results_table.csv` ve `f1_comparison.png` oluşturuldu
 - → Rapor yazıma başla (7-8 sayfa, IEEE referanslar)
 
 ---
@@ -136,6 +138,6 @@
 
 ---
 
-**Son Güncelleme:** 2026-05-12  
-**Status:** Gün 1 tamamlandı, kişiler Gün 2'ye hazır  
-**Sonraki Senkronizasyon:** Herkes `docs/setup-and-workflow.md`'ı oku
+**Son Güncelleme:** 2026-05-19  
+**Status:** Veri, TF-IDF baseline, embedding modelleri ve final metrik tablosu hazır  
+**Sonraki Senkronizasyon:** Rapor metni, kaynakça ve teslim paketi tamamlanmalı

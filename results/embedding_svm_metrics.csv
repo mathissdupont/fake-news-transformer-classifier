@@ -1,0 +1,2 @@
+Model,Classifier,Accuracy,Precision,Recall,F1-Score,True_Negatives,False_Positives,False_Negatives,True_Positives
+embedding,SVM,0.9108818011257036,0.905241935483871,0.903420523138833,0.904330312185297,522,47,48,449

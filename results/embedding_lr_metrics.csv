@@ -1,0 +1,2 @@
+Model,Classifier,Accuracy,Precision,Recall,F1-Score,True_Negatives,False_Positives,False_Negatives,True_Positives
+embedding,LogisticRegression,0.9043151969981238,0.8895463510848126,0.9074446680080482,0.898406374501992,513,56,46,451

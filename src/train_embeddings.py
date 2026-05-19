@@ -7,11 +7,20 @@ import os
 import pandas as pd
 import joblib
 import numpy as np
+import matplotlib
+
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 from sentence_transformers import SentenceTransformer
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
+from sklearn.metrics import (
+    accuracy_score,
+    precision_recall_fscore_support,
+    confusion_matrix,
+    ConfusionMatrixDisplay,
+)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROC_DIR = os.path.join(ROOT, 'data', 'processed')
@@ -29,10 +38,31 @@ def load_data():
 
 def embed_texts(model_name='paraphrase-multilingual-MiniLM-L12-v2'):
     X_train_texts, y_train, X_test_texts, y_test = load_data()
-    model = SentenceTransformer(model_name)
-    Xtr = model.encode(X_train_texts, show_progress_bar=True, convert_to_numpy=True)
-    Xte = model.encode(X_test_texts, show_progress_bar=True, convert_to_numpy=True)
+    train_cache = os.path.join(PROC_DIR, 'embeddings_train.npy')
+    test_cache = os.path.join(PROC_DIR, 'embeddings_test.npy')
+
+    if os.path.exists(train_cache) and os.path.exists(test_cache):
+        Xtr = np.load(train_cache)
+        Xte = np.load(test_cache)
+        model = None
+    else:
+        model = SentenceTransformer(model_name)
+        Xtr = model.encode(X_train_texts, show_progress_bar=True, convert_to_numpy=True)
+        Xte = model.encode(X_test_texts, show_progress_bar=True, convert_to_numpy=True)
+        np.save(train_cache, Xtr)
+        np.save(test_cache, Xte)
+
     return Xtr, y_train, Xte, y_test, model
+
+
+def save_confusion_matrix(y_test, preds, output_path, title):
+    cm = confusion_matrix(y_test, preds, labels=['fake', 'real'])
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['fake', 'real'])
+    disp.plot(cmap='Blues', values_format='d')
+    plt.title(title)
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
 
 
 def fit_and_eval(Xtr, y_train, Xte, y_test, name_prefix='embedding'):
@@ -56,6 +86,12 @@ def fit_and_eval(Xtr, y_train, Xte, y_test, name_prefix='embedding'):
         'True_Positives': int(tp)
     }])
     df_lr.to_csv(os.path.join(RESULTS_DIR, f'{name_prefix}_lr_metrics.csv'), index=False)
+    save_confusion_matrix(
+        y_test,
+        preds,
+        os.path.join(RESULTS_DIR, f'confusion_matrix_{name_prefix}_lr.png'),
+        'Embedding Logistic Regression Confusion Matrix',
+    )
     joblib.dump(lr, os.path.join(MODELS_DIR, f'{name_prefix}_lr.pkl'))
 
     # SVM
@@ -78,6 +114,12 @@ def fit_and_eval(Xtr, y_train, Xte, y_test, name_prefix='embedding'):
         'True_Positives': int(tp2)
     }])
     df_svm.to_csv(os.path.join(RESULTS_DIR, f'{name_prefix}_svm_metrics.csv'), index=False)
+    save_confusion_matrix(
+        y_test,
+        preds_svm,
+        os.path.join(RESULTS_DIR, f'confusion_matrix_{name_prefix}_svm.png'),
+        'Embedding SVM Confusion Matrix',
+    )
     joblib.dump(svm, os.path.join(MODELS_DIR, f'{name_prefix}_svm.pkl'))
 
 

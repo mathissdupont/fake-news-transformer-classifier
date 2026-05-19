@@ -54,12 +54,12 @@
 
 ## Model Choices
 
-**Status:** [PENDING - To be decided by Person 2]
+**Status:** [DECIDED - Embedding models run on 2026-05-19]
 
-**Embedding model:** [FILL IN]
-- Model name: [e.g., sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2]
-- Reasoning: [explain why this model for this dataset language]
+**Embedding model:** `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`
+- Reasoning: multilingual Sentence-BERT model with Turkish support, suitable for converting news text into semantic sentence embeddings while staying lightweight enough to run locally.
 
-**Classifiers for embeddings:** [FILL IN]
-- Always test: Logistic Regression, SVM
-- Optional: Random Forest if time permits
+**Classifiers for embeddings:** Logistic Regression and linear SVM
+- Logistic Regression result saved to `results/embedding_lr_metrics.csv`.
+- SVM result saved to `results/embedding_svm_metrics.csv`.
+- Random Forest remains optional and was not run in the main comparison.
