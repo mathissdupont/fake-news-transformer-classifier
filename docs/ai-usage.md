@@ -34,7 +34,9 @@ This file records every meaningful use of AI tools during the project.
 | 2026-05-12 | Copilot | Process note update | Add a learning-focused note to the sprint plan so the team records why choices were made, not just what was finished | Human review pending after this edit |
 | 2026-05-12 | Copilot | Turkish summary note | Create a Turkish note summarizing what has been done so far and explaining technical terms in plain language | Human review pending after this edit |
 | 2026-05-19 | ChatGPT Codex | Execution and debugging | Set up local virtual environment, ran embedding training, fixed evaluation plotting backend, generated final metrics table and F1 comparison plot | Human should review generated `results/` files and updated docs |
-
+| 2026-05-19 | ChatGPT | Concept clarification | Explained TF-IDF, Logistic Regression, transformer sentence embeddings, Sentence-BERT, evaluation metrics, and confusion matrices for report understanding | Explanations reviewed and adapted by the team |
+| 2026-05-19 | ChatGPT | Report drafting support | Helped structure the LaTeX report sections, including introduction, related work, dataset, methodology, results, discussion, limitations, and conclusion | Draft text manually reviewed and edited before submission |
+| 2026-05-19 | ChatGPT | Results interpretation | Helped interpret final metrics, F1 comparison, and confusion matrices; emphasized that TF-IDF performed best only under this dataset and setup | Interpretation checked against saved metrics and figures |
 ## Reporting Rule
 
 If AI is used again for brainstorming, code generation, debugging, text editing, or summarization, add a new row here with the date, tool, purpose, and a short human verification note.
