@@ -1,0 +1,263 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{mathptmx}
+\renewcommand{\baselinestretch}{1.0}
+\setlength{\parskip}{11pt}
+\setlength{\parindent}{0pt}
+
+\usepackage[T1]{fontenc}
+\usepackage{xurl}
+\emergencystretch=2em
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{url}
+\usepackage{cite}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+
+    {\Large \bfseries IZMIR KATIP CELEBI UNIVERSITY \par}
+    \vspace{0.3cm}
+    {\large FACULTY OF ENGINEERING AND ARCHITECTURE \par}
+    \vspace{0.3cm}
+    {\large DEPARTMENT OF COMPUTER ENGINEERING \par}
+
+    \vspace{2.5cm}
+
+    {\large \bfseries CENG 454 - Artificial Intelligence and Data Science \par}
+    \vspace{0.2cm}
+    {\large Final Project Report \par}
+
+    \vspace{1.5cm}
+
+    \rule{\linewidth}{0.5mm} \\[0.4cm]
+    {\LARGE \bfseries Fake News Detection Using TF-IDF and \\[0.3cm] Transformer-Based Sentence Embeddings \par}
+    \rule{\linewidth}{0.5mm} \\[1.5cm]
+
+    \large \textbf{Group No: 13} \\[1cm]
+
+    \begin{table}[H]
+        \centering
+        \large
+        \begin{tabular}{ll}
+            \textbf{Student Name \& Surname} & \textbf{Student Number} \\ \midrule
+            Samet Ünsal & 220401082 \\
+            Fatmanur Bulut & 230401034 \\
+            Eren Makraç & 210401035 \\
+        \end{tabular}
+    \end{table}
+
+    \vfill
+
+    {\large \textbf{Submission Date:} May 22, 2026 \par}
+    \vspace*{1cm}
+\end{titlepage}
+
+\clearpage
+\pagenumbering{arabic}
+
+\begin{abstract}
+This project investigates fake news detection as a supervised binary text classification task on a Turkish-language news dataset. The main objective is to compare a traditional lexical representation method, TF-IDF, with transformer-based sentence embeddings for distinguishing between fake and real news. In the baseline approach, TF-IDF vectors were extracted from news texts and classified using Logistic Regression. In the embedding-based approach, dense sentence representations were generated with the multilingual Sentence-BERT model \path{paraphrase-multilingual-MiniLM-L12-v2}, and two classical classifiers, Logistic Regression and Support Vector Machine (SVM), were trained on these representations. The models were evaluated using accuracy, precision, recall, F1-score, and confusion matrices on a fixed stratified test set. The experimental results show that TF-IDF + Logistic Regression achieved the highest overall performance with an accuracy of 0.9381 and an F1-score of 0.9317. Although transformer-based embeddings produced competitive results, the TF-IDF baseline performed better in this experimental setup. This suggests that lexical patterns in the selected dataset were highly informative for fake news classification.
+\end{abstract}
+
+\section{Introduction and Motivation}
+
+The rapid growth of online news platforms and social media has increased the speed at which information spreads. While this enables faster access to news, it also makes the distribution of misleading or fabricated information easier. Fake news can influence public opinion, reduce trust in legitimate media sources, and create social, political, or economic harm. Therefore, automatic fake news detection has become an important research problem in artificial intelligence, data science, and natural language processing.
+
+Fake news detection is commonly formulated as a text classification task. Given a news article, headline, or short description, the goal is to determine whether the content is reliable or misleading. In this project, the task is defined as binary classification with two labels: \texttt{fake} and \texttt{real}. The project focuses on Turkish news texts, which makes the task especially relevant because many fake news detection studies and benchmark datasets are centered on English. Working with Turkish also introduces additional challenges related to morphology, vocabulary variation, and dataset availability.
+
+Traditional machine learning approaches have been widely used for fake news detection. One of the most common methods is TF-IDF, which represents a document according to the importance of its words and n-grams. TF-IDF is simple, efficient, and often effective when class-specific lexical patterns exist in the dataset. For this reason, it provides a strong baseline for evaluating more advanced representation methods.
+
+Transformer-based language models offer a different approach. Instead of representing text only through word frequency, transformer models use attention mechanisms to learn contextual and semantic relationships between words. Sentence embedding models, such as Sentence-BERT, can convert a sentence or document into a dense numerical vector that represents its semantic content. These embeddings can then be used as input features for machine learning classifiers.
+
+The main motivation of this project is to examine whether transformer-based sentence embeddings improve fake news detection performance compared to a traditional TF-IDF baseline. For this purpose, the project compares three experimental configurations:
+
+\begin{itemize}
+    \item TF-IDF features with Logistic Regression,
+    \item transformer-based sentence embeddings with Logistic Regression,
+    \item transformer-based sentence embeddings with linear SVM.
+\end{itemize}
+
+The research question of the project is:
+
+\begin{quote}
+Can transformer-based sentence embeddings outperform a TF-IDF baseline for Turkish fake news detection under the selected dataset, preprocessing pipeline, and classifier settings?
+\end{quote}
+
+The contribution of this project is not the development of a new transformer architecture. Instead, it provides a controlled experimental comparison between a classical lexical baseline and transformer-based sentence representations. The results are analyzed with standard classification metrics and confusion matrices in order to understand which approach is more effective for the selected dataset.
+
+\section{Background and Related Work}
+
+Fake news detection has become an important research problem due to the rapid spread of misleading information through online news platforms and social media. In the literature, fake news detection is generally studied as a supervised text classification task, where a model learns to distinguish unreliable or fabricated news from reliable news using labeled examples. Shu et al. discuss fake news detection from a data mining perspective and emphasize that the problem is challenging because fake news is often designed to imitate legitimate news while spreading false or misleading claims \cite{shu2017fake}. Wang introduced the LIAR dataset as an early benchmark for automatic fake news detection, showing the importance of structured labeled datasets for evaluating classification models \cite{wang2017liar}. Perez-Rosas et al. also studied automatic fake news detection and highlighted that linguistic features can be useful for separating fake and legitimate news articles \cite{perezrosas2018automatic}.
+
+Traditional machine learning methods are still important baselines in text classification. A common approach is to represent documents with lexical features such as bag-of-words, n-grams, or TF-IDF, and then train classifiers such as Logistic Regression, Naive Bayes, or Support Vector Machines. These models are computationally efficient, easy to reproduce, and often effective when the dataset contains class-specific word patterns. In this project, TF-IDF is used as the baseline representation because it provides a simple and measurable way to evaluate how well fake and real news can be separated using word-level information.
+
+Recent progress in natural language processing has been strongly influenced by transformer-based language models. The Transformer architecture introduced the self-attention mechanism, which allows a model to capture relationships between tokens without relying on recurrent sequence processing \cite{vaswani2017attention}. BERT later improved contextual language representation by pretraining deep bidirectional transformer models and adapting them to downstream NLP tasks \cite{devlin2019bert}. Later studies such as RoBERTa showed that pretraining strategy, data size, and optimization choices can significantly affect transformer performance \cite{liu2019roberta}. Efficient transformer variants such as DistilBERT also showed that smaller and faster models can be useful in practical NLP applications where computational resources are limited \cite{sanh2019distilbert}.
+
+Multilingual transformer models are especially relevant for languages other than English. XLM-R demonstrated that cross-lingual representation learning can be scaled to many languages and can improve multilingual NLP performance \cite{conneau2020xlmr}. This is important for Turkish fake news detection because Turkish has rich morphology, flexible word formation, and different linguistic patterns compared to English. Therefore, using a multilingual representation model can be a practical choice when working with Turkish text.
+
+Sentence-level embedding models provide another practical way to use transformer-based representations. Sentence-BERT modifies pretrained BERT-style models using siamese and triplet network structures in order to produce semantically meaningful sentence embeddings \cite{reimers2019sentencebert}. These embeddings can be used as dense vector representations for classification, clustering, semantic search, and similarity-based tasks. In this project, the multilingual Sentence-Transformers model \path{paraphrase-multilingual-MiniLM-L12-v2} is used as a fixed feature extractor to generate sentence embeddings for Turkish news texts \cite{huggingface_minilm}.
+
+Turkish fake news detection is a more specific setting compared to widely used English fake news benchmarks. Previous Turkish-oriented studies show that language-specific resources and dataset characteristics are important for this task. Mertoglu and Genc studied lexicon generation for fake news detection and emphasized the role of lexical signals in misinformation-related text analysis \cite{mertoglu2020lexicon}. Kulaksiz and Coskuncay studied fake news detection on mainstream media using natural language processing, which is closely related to the dataset used in this project \cite{kulaksiz2025fake}. The dataset used in this project is also publicly available on Hugging Face as a Turkish fake news detection dataset \cite{isakulaksizdataset}.
+
+Based on this background, this project compares a classical TF-IDF baseline with transformer-based sentence embeddings. The purpose is not to claim that one family of models is universally superior, but to evaluate which representation performs better under the selected Turkish dataset, preprocessing pipeline, and classifier settings.
+
+\section{Dataset and Preprocessing}
+
+The dataset used in this project is the Turkish Fake News Detection dataset published on Hugging Face as \texttt{isakulaksiz/turkish-fake-news-detection}. The dataset contains Turkish news samples with binary labels indicating whether a news item is fake or real. This dataset was selected because it directly matches the project objective and provides labeled Turkish-language news data for supervised classification.
+
+The preprocessing pipeline was implemented in \texttt{src/preprocessing.py}. The dataset was loaded using the Hugging Face \texttt{datasets} library and converted into a pandas DataFrame. In the original dataset structure, news content may include fields such as \texttt{title}, \texttt{description}, and label-related columns. For the final text representation, the \texttt{title} and \texttt{description} fields were combined when the description field was available. If the description field was not available, only the title field was used. This design allowed the model to use both headline-level and short-content information during classification.
+
+The labels were normalized into two target classes: \texttt{fake} and \texttt{real}. When the dataset contained a \texttt{status} column, the value \texttt{1} was mapped to \texttt{real}, and the value \texttt{0} was mapped to \texttt{fake}. The preprocessing script also included additional label normalization logic for alternative column names such as \texttt{label} or \texttt{Resource}. This made the preprocessing pipeline more robust against small variations in dataset format.
+
+After label normalization, rows with empty text values or missing labels were removed. The final processed dataset contained 5,326 samples. The processed data was saved into a clean two-column format with \texttt{text} and \texttt{label} fields. This simplified format was then used consistently by the TF-IDF baseline, embedding-based models, and evaluation scripts.
+
+The dataset was split into training and test sets using an 80/20 stratified split. Stratification was used to preserve the fake/real class distribution in both subsets. A fixed \texttt{random\_state=42} was used to make the split reproducible. As a result, the final training set contained 4,260 samples and the test set contained 1,066 samples.
+
+The processed files were saved under the \texttt{data/processed/} directory as \texttt{train.csv} and \texttt{test.csv}. These files were used as the common input for all model training scripts. This ensured that all models were evaluated on the same test set and that the comparison between TF-IDF and transformer-based sentence embeddings remained fair.
+
+\section{Proposed Approach and Implementation}
+
+This project was designed as a comparative text classification study. The same preprocessed training and test sets were used for all models in order to make the comparison fair. The implementation includes one classical baseline model and two transformer-embedding-based models. The complete workflow consists of data preprocessing, feature extraction, model training, evaluation, and result aggregation.
+
+\subsection{Overall Pipeline}
+
+The experimental pipeline follows these steps:
+
+\begin{enumerate}
+    \item Load the Turkish fake news dataset from Hugging Face.
+    \item Combine available textual fields into a single \texttt{text} column.
+    \item Normalize labels into two classes: \texttt{fake} and \texttt{real}.
+    \item Split the dataset into stratified training and test sets.
+    \item Train a TF-IDF + Logistic Regression baseline.
+    \item Generate transformer-based sentence embeddings.
+    \item Train Logistic Regression and SVM classifiers on the embeddings.
+    \item Evaluate all models using the same test set and classification metrics.
+\end{enumerate}
+
+This pipeline was implemented using Python. The main libraries used in the project include \texttt{pandas} for data processing, \texttt{scikit-learn} for classical machine learning models and evaluation metrics, \texttt{datasets} for loading the Hugging Face dataset, \texttt{sentence-transformers} for generating sentence embeddings, \texttt{NumPy} for numerical arrays, \texttt{joblib} for saving model artifacts, and \texttt{matplotlib} for generating figures.
+
+\subsection{TF-IDF Baseline}
+
+The first model is a classical TF-IDF baseline. TF-IDF represents a document by assigning weights to terms based on their frequency in a document and their rarity across the corpus. In this project, the TF-IDF vectorizer was configured with a maximum of 20,000 features and an n-gram range of $(1,2)$, meaning that both unigrams and bigrams were included.
+
+After feature extraction, a Logistic Regression classifier was trained on the TF-IDF vectors. Logistic Regression was selected because it is a strong and commonly used baseline for binary text classification. It is also computationally efficient and easier to interpret compared to more complex models. In the implementation, the classifier used \texttt{random\_state=42}, the \texttt{liblinear} solver, and \texttt{max\_iter=1000}.
+
+The TF-IDF model and vectorizer were saved as model artifacts. The script also produced a metrics CSV file and a confusion matrix figure for the test set.
+
+\subsection{Transformer-Based Sentence Embeddings}
+
+The second approach uses transformer-based sentence embeddings. Instead of representing text as sparse word-frequency vectors, each news text is converted into a dense vector representation. The embedding model used in this project is \path{paraphrase-multilingual-MiniLM-L12-v2}, which is available through the Sentence-Transformers framework.
+
+This model was used as a fixed feature extractor. In other words, full transformer fine-tuning was not performed. Each input text was encoded into a 384-dimensional sentence embedding. These embeddings were then used as input features for classical machine learning classifiers.
+
+Two classifiers were trained on the generated embeddings:
+
+\begin{itemize}
+    \item Logistic Regression,
+    \item linear Support Vector Machine.
+\end{itemize}
+
+The Logistic Regression model was trained with \texttt{random\_state=42} and \texttt{max\_iter=1000}. The SVM model used a linear kernel. This setup allowed the project to compare whether dense semantic representations improve performance over a lexical TF-IDF baseline.
+
+\subsection{Embedding Caching and Reproducibility}
+
+Computing transformer-based sentence embeddings can be more expensive than TF-IDF feature extraction. To reduce repeated computation, the project used a caching strategy. The train and test embeddings were saved as NumPy arrays after the first computation. When the embedding training script was executed again, the cached arrays were loaded instead of recomputing embeddings from the beginning.
+
+The cached embedding files were stored as:
+
+\begin{itemize}
+    \item \texttt{data/processed/embeddings\_train.npy},
+    \item \texttt{data/processed/embeddings\_test.npy}.
+\end{itemize}
+
+The trained classifiers and vectorizers were saved under the \texttt{models/} directory. Evaluation outputs, including metrics files, confusion matrices, and the final comparison table, were saved under the \texttt{results/} directory. This file organization supports reproducibility and makes it possible to rerun or inspect each stage of the experiment.
+
+\subsection{Project Modules}
+
+The implementation was organized into separate Python modules. The \texttt{preprocessing.py} file handles dataset loading, text construction, label normalization, and train/test splitting. The \texttt{train\_tfidf.py} file trains the TF-IDF baseline and saves its metrics, model, vectorizer, and confusion matrix. The \texttt{train\_embeddings.py} file generates sentence embeddings, trains Logistic Regression and SVM classifiers, and saves their results. The \texttt{evaluate.py} file combines all metrics into a final comparison table and generates the F1-score comparison graph. Additional helper functions for reproducibility and metric saving were placed in \texttt{utils.py} and \texttt{embedding\_utils.py}.
+
+\section{Evaluation and Results}
+
+The models were evaluated using accuracy, precision, recall, F1-score, and confusion matrices. Since fake news detection has both false positive and false negative risks, F1-score is used as an important summary metric.
+
+\begin{table}[H]
+\centering
+\caption{Model Performance Comparison}
+\begin{tabular}{llcccc}
+\toprule
+Model Type & Classifier & Accuracy & Precision & Recall & F1-score \\
+\midrule
+\textbf{TF-IDF} & Logistic Regression & \textbf{0.9381} & \textbf{0.9595} & 0.9054 & \textbf{0.9317} \\
+Embedding & Logistic Regression & 0.9043 & 0.8895 & \textbf{0.9074} & 0.8984 \\
+Embedding & SVM & 0.9109 & 0.9052 & 0.9034 & 0.9043 \\
+\bottomrule
+\end{tabular}
+\label{tab:results}
+\end{table}
+
+Table~\ref{tab:results} shows that TF-IDF + Logistic Regression achieved the best result. It reached an accuracy of 0.9381 and an F1-score of 0.9317. Among the embedding-based models, SVM performed slightly better than Logistic Regression.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{figures/f1_comparison.png}
+\caption{F1-score comparison of TF-IDF and embedding-based models}
+\label{fig:f1comparison}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\linewidth]{figures/confusion_matrix_tfidf.png}
+\caption{Confusion matrix of TF-IDF + Logistic Regression}
+\label{fig:tfidfcm}
+\end{figure}
+
+The confusion matrix in Figure~\ref{fig:tfidfcm} shows that the TF-IDF model correctly classified 550 fake samples and 450 real samples. It produced 19 false positives and 47 false negatives.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\linewidth]{figures/confusion_matrix_embedding_svm.png}
+\caption{Confusion matrix of Embedding + SVM}
+\label{fig:svmcm}
+\end{figure}
+
+The Embedding + SVM model correctly classified 522 fake samples and 449 real samples. It performed better than Embedding + Logistic Regression, but it was still below the TF-IDF baseline.
+
+\section{Discussion and Limitations}
+
+The results show that TF-IDF + Logistic Regression performed better than the transformer-based sentence embedding models in this experiment. This was not the expected result at the beginning, because transformer-based representations are usually stronger at capturing semantic meaning.
+
+One possible reason is that this dataset may contain strong lexical patterns. Fake and real news samples may use different words, expressions, or headline styles. Since TF-IDF directly uses word-level information, it may capture these patterns better than the selected embedding model.
+
+Another possible reason is that \path{paraphrase-multilingual-MiniLM-L12-v2} creates a fixed-size dense vector for each text. During this compression, some specific word-level signals may become less visible to the classifier.
+
+This result should not be interpreted as transformer embeddings being generally worse than TF-IDF. The conclusion only applies to this dataset, preprocessing pipeline, embedding model, and classifiers. A fully fine-tuned Turkish transformer model could produce different results.
+
+There are also some limitations. The project only uses text content. It does not use source credibility, publication date, author information, images, or social media sharing patterns. Also, some labels were normalized using heuristic rules, so minor label noise may exist.
+
+\section{Conclusion and Future Work}
+
+This project compared TF-IDF and transformer-based sentence embeddings for Turkish fake news detection. The best result was obtained with TF-IDF + Logistic Regression, which achieved an F1-score of 0.9317. The best embedding-based model was Embedding + SVM with an F1-score of 0.9043.
+
+The results suggest that lexical features are very useful for this dataset. However, embedding-based models still produced competitive results and remain useful for representing semantic meaning.
+
+Future work may include fine-tuning a Turkish transformer model such as BERTurk, testing larger datasets, comparing Turkish and English datasets, and combining TF-IDF features with dense embeddings. Metadata such as source information and publication dates could also be added to improve real-world fake news detection.
+
+\clearpage
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\clearpage
+\section*{AI Usage Statement}
+
+AI tools were used for planning, code assistance, debugging, documentation support, and report drafting suggestions. All AI-assisted outputs were manually reviewed, edited, and verified by the project members. The final experiments, metrics, figures, and interpretations are based on the project code and saved result files. Detailed AI usage records are provided in \texttt{docs/ai-usage.md}.
+
+\end{document}

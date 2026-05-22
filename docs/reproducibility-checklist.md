@@ -41,7 +41,7 @@ Complete these checks one week before the deadline.
 
 ### Submission Package
 - [x] Folder structure matches `CENG454_Group_X/` layout
-- [x] `report/final_report.pdf` exists
+ - [x] `reports/final_report.pdf` exists
 - [ ] `notebooks/` contains any exploration code
 - [x] `src/` contains all training scripts
 - [x] `results/` contains metrics CSV and confusion matrix figures

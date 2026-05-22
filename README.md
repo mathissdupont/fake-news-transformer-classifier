@@ -30,3 +30,24 @@ The three-person work split and the AI usage standard are documented in `docs/te
 3. Train embedding-based models.
 4. Evaluate with accuracy, precision, recall, F1-score, and confusion matrices.
 5. Write the final report and bibliography in IEEE format.
+
+Quick Run (minimal)
+
+```bash
+# create and activate venv
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1  # Windows PowerShell
+pip install -r requirements.txt
+
+# prepare data (will download from HF)
+python scripts/download_prepare_dataset.py
+
+# train TF-IDF baseline
+python src/train_tfidf.py
+
+# train embedding-based classifiers
+python src/train_embeddings.py
+
+# evaluate and collect results
+python src/evaluate.py
+```

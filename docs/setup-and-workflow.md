@@ -97,10 +97,10 @@ python src/evaluate.py
 - `models/tfidf_vectorizer.pkl`
 
 **QC Kontrol Listesi:**
-- [ ] Train.csv ve test.csv satır sayıları doğru mu? (4260 + 1066 = 5326)
-- [ ] Label dağılımı uygun mu? (stratified, fake/real dengeli)
-- [ ] TF-IDF accuracy > %90 mı?
-- [ ] Örnek kontrol dosyasından 20 haber incelenip doğru etiketlendi mi?
+- [x] Train.csv ve test.csv satır sayıları doğru mu? (4260 + 1066 = 5326)
+- [x] Label dağılımı uygun mu? (stratified, fake/real dengeli)
+- [x] TF-IDF accuracy > %90 mı?
+- [x] Örnek kontrol dosyasından 20 haber incelenip doğru etiketlendi mi?
 
 ---
 
@@ -128,10 +128,10 @@ python src/evaluate.py
 - Hipo parametrleri (C, kernel) fine-tune et
 
 **QC Kontrol Listesi:**
-- [ ] LR ve SVM modelleri başarıyla eğitildi mi?
-- [ ] Metrikleri TF-IDF ile karşılaştır
-- [ ] Embedding modeli başarıyla yüklendi mi?
-- [ ] Embedding extraction hızı uygun mu (caching var mı)?
+- [x] LR ve SVM modelleri başarıyla eğitildi mi?
+- [x] Metrikleri TF-IDF ile karşılaştır
+- [x] Embedding modeli başarıyla yüklendi mi?
+- [x] Embedding extraction hızı uygun mu (caching var mı)?
 
 ---
 
@@ -165,12 +165,12 @@ python src/evaluate.py
 - `docs/ai-usage.md` (güncellenmiş)
 
 **Rapor Hazırlama Kontrol Listesi:**
-- [ ] Tüm metrikleri `final_results_table.csv`'den al (manuel kopya yapma!)
-- [ ] Her figür numara ve başlık taşısın
-- [ ] Confusion matrix'leri raporun evaluation bölümüne ekle
-- [ ] İeeE referans formatında en az 10 kaynak ekle
-- [ ] Rapor max 8 sayfa
-- [ ] PDF, `docs/` ve `results/` klasörlerindeki tüm gerekli dosyaları içer
+- [x] Tüm metrikleri `final_results_table.csv`'den al (manuel kopya yapma!)
+- [x] Her figür numara ve başlık taşısın
+- [x] Confusion matrix'leri raporun evaluation bölümüne ekle
+- [x] IEEE referans formatında en az 10 kaynak ekle
+- [x] Rapor max 8 sayfa
+- [x] PDF, `docs/` ve `results/` klasörlerindeki tüm gerekli dosyaları içer
 
 ---
 
