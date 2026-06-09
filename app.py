@@ -345,6 +345,58 @@ st.markdown(
         font-size: 0.9rem;
         line-height: 1.45;
     }
+
+    .quality-panel {
+        background: #ffffff;
+        border: 1px solid #d7dde7;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin: 10px 0 14px;
+    }
+
+    .quality-panel strong {
+        color: #111827;
+    }
+
+    .quality-panel ul {
+        margin: 8px 0 0 18px;
+        padding: 0;
+        color: #374151;
+    }
+
+    .quality-panel li {
+        margin: 4px 0;
+    }
+
+    .model-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 0.92rem;
+    }
+
+    .model-table th,
+    .model-table td {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 8px 6px;
+        text-align: left;
+        color: #111827;
+    }
+
+    .model-table th {
+        color: #4b5563;
+        font-weight: 750;
+    }
+
+    .recommendation {
+        background: #eef8f9;
+        border: 1px solid #b9dfe3;
+        border-radius: 8px;
+        padding: 12px 14px;
+        color: #164e53;
+        margin-top: 12px;
+        line-height: 1.5;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -612,6 +664,46 @@ def percent(value):
     return f"{value * 100:.1f}%"
 
 
+def text_quality_notes(text):
+    word_count = len(text.split())
+    notes = []
+    if word_count < 20:
+        notes.append("Metin kısa; başlıkla birlikte haber açıklaması da eklenirse tahmin daha sağlıklı olur.")
+    if "http" in text.lower() or "www." in text.lower():
+        notes.append("Metinde bağlantı var; model bağlantının kendisini doğrulamaz, yalnızca yazı içeriğini analiz eder.")
+    if text.isupper() and len(text) > 20:
+        notes.append("Metin tamamen büyük harfli; bu durum bazı kelime örüntülerini etkileyebilir.")
+    if not any(char in text for char in ".!?"):
+        notes.append("Metin tek parça görünüyor; birkaç cümlelik bağlam daha iyi sonuç verebilir.")
+    if not notes:
+        notes.append("Metin uzunluğu ve biçimi analiz için uygun görünüyor.")
+    return word_count, notes
+
+
+def consensus_from_results(results):
+    real_probability = sum(result["real_probability"] for result in results) / len(results)
+    fake_probability = sum(result["fake_probability"] for result in results) / len(results)
+    prediction = "real" if real_probability >= fake_probability else "fake"
+    agreement = sum(1 for result in results if result["prediction"] == prediction)
+
+    return {
+        "model_key": "consensus",
+        "model_label": "Konsensüs Analizi",
+        "model_display_name": "Konsensüs Analizi (Tüm modellerin ortalaması)",
+        "prediction": prediction,
+        "real_probability": real_probability,
+        "fake_probability": fake_probability,
+        "confidence": max(real_probability, fake_probability),
+        "agreement": agreement,
+        "total_models": len(results),
+        "reasons": [],
+        "reason_summary": (
+            "Konsensüs analizi, mevcut modellerin doğru ve yanlış olasılıklarını "
+            "ortalayarak daha dengeli bir karar özeti üretir."
+        ),
+    }
+
+
 def build_explanation(result, text):
     prediction = result["prediction"]
     confidence = result["confidence"]
@@ -669,10 +761,23 @@ def render_single_result(result, text):
     st.progress(result["real_probability"], text="Doğru olma skoru")
     st.progress(result["fake_probability"], text="Yanlış olma skoru")
     render_reason_panel(result)
+    render_quality_panel(text)
     st.caption(
         "Not: Bu sonuç doğrulama kararı değil, modelin istatistiksel tahminidir. "
         "Haber yine de kaynak kontrolüyle değerlendirilmelidir."
     )
+
+
+def render_quality_panel(text):
+    word_count, notes = text_quality_notes(text)
+    items = "".join(f"<li>{escape(note)}</li>" for note in notes)
+    html = (
+        '<div class="quality-panel">'
+        f"<strong>Metin kalite kontrolü: {word_count} kelime</strong>"
+        f"<ul>{items}</ul>"
+        "</div>"
+    )
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def render_reason_panel(result):
@@ -701,6 +806,20 @@ def render_reason_panel(result):
             "Bu açıklama modelin gerçek iç mantığına en yakın okunabilir özetidir; "
             "yine de haberin doğru olup olmadığını kanıtlamaz, sadece hangi metin "
             "parçalarının sınıflandırmayı ittiğini gösterir."
+        )
+    elif model_key == "consensus":
+        agreement = result.get("agreement", 0)
+        total_models = result.get("total_models", 0)
+        body = (
+            '<div class="recommendation">'
+            f"Mevcut {total_models} modelin {agreement} tanesi "
+            f"{escape(display_label(result['prediction']))} kararına yakın sonuç verdi. "
+            "Bu özet tek bir model yerine modellerin ortalama eğilimini gösterir."
+            "</div>"
+        )
+        limitation = (
+            "Konsensüs sonucu modellerin ortak eğilimini verir; yine de dış kaynak "
+            "doğrulaması yerine geçmez."
         )
     else:
         reference = result.get("lexical_reference")
@@ -787,9 +906,37 @@ def render_reason_chips(items, max_strength, chip_type):
 
 
 def render_comparison(results, text):
-    st.write("Modellerin aynı haber için verdiği sonuçlar:")
+    consensus = consensus_from_results(results)
+    render_single_result(consensus, text)
+    render_model_table(results)
+
+
+def render_model_table(results):
+    rows = []
     for result in results:
-        render_single_result(result, text)
+        rows.append(
+            "<tr>"
+            f"<td>{escape(result['model_display_name'])}</td>"
+            f"<td>{escape(display_label(result['prediction']))}</td>"
+            f"<td>{percent(result['real_probability'])}</td>"
+            f"<td>{percent(result['fake_probability'])}</td>"
+            "</tr>"
+        )
+
+    html = (
+        '<div class="reason-panel">'
+        "<h4>Model karşılaştırması</h4>"
+        '<table class="model-table">'
+        "<thead><tr><th>Model</th><th>Karar</th><th>Doğru</th><th>Yanlış</th></tr></thead>"
+        f"<tbody>{''.join(rows)}</tbody>"
+        "</table>"
+        '<div class="recommendation">'
+        "Modeller aynı yöne yakınsa sonuç daha güvenilir okunabilir. "
+        "Modeller ayrışıyorsa haber metninde daha fazla bağlam veya kaynak kontrolü gerekir."
+        "</div>"
+        "</div>"
+    )
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def render_assistant_content(content):
@@ -840,10 +987,12 @@ with st.container():
     )
     st.caption(MODEL_CONFIGS[selected_model_key]["description"])
     compare_models = st.toggle(
-        "Mevcut tüm modellerle karşılaştır",
+        "Konsensüs analizi yap",
         value=False,
         disabled=len(available_keys) < 2,
     )
+    if compare_models and len(available_keys) > 1:
+        st.caption("Tüm modeller çalışır, ortalama karar ve model karşılaştırma tablosu gösterilir.")
 
 missing = missing_model_labels()
 if missing:
