@@ -51,3 +51,32 @@ python src/train_embeddings.py
 # evaluate and collect results
 python src/evaluate.py
 ```
+
+## UI Demo
+
+The project includes a Streamlit interface with a ChatGPT-style analysis panel.
+Paste a news text into the chat box to see the selected model's real/fake
+probabilities and a short explanation of the prediction.
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+The UI can switch between available saved models. The TF-IDF model is available
+when these artifacts exist:
+
+- `models/tfidf_model.pkl`
+- `models/tfidf_vectorizer.pkl`
+
+If these files are missing, run:
+
+```bash
+python src/train_tfidf.py
+```
+
+Embedding model options appear after running:
+
+```bash
+python src/train_embeddings.py
+```

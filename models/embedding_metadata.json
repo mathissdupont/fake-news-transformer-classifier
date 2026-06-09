@@ -1,0 +1,8 @@
+{
+  "model_name": "paraphrase-multilingual-MiniLM-L12-v2",
+  "notes": "Embedding classifier models not committed due to size. Run src/train_embeddings.py to produce models.",
+  "embeddings_cached": {
+    "train": "data/processed/embeddings_train.npy",
+    "test": "data/processed/embeddings_test.npy"
+  }
+}
