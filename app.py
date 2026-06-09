@@ -1,4 +1,5 @@
 """Chat-style Streamlit UI for Turkish fake news detection."""
+from html import escape
 from pathlib import Path
 
 import joblib
@@ -151,6 +152,152 @@ st.markdown(
     .stChatInput {
         background: #f5f7fa;
     }
+
+    div[data-testid="stChatInput"] {
+        background: #f5f7fa;
+    }
+
+    div[data-testid="stChatInput"] textarea {
+        background: #ffffff !important;
+        color: #111827 !important;
+        caret-color: #111827 !important;
+        border: 1px solid #cfd6e2 !important;
+    }
+
+    div[data-testid="stChatInput"] textarea::placeholder {
+        color: #6b7280 !important;
+        opacity: 1 !important;
+    }
+
+    div[data-testid="stChatInput"] button {
+        color: #146c75 !important;
+    }
+
+    .reason-panel {
+        background: #ffffff;
+        border: 1px solid #d7dde7;
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin: 14px 0 8px;
+    }
+
+    .reason-panel h4 {
+        color: #111827;
+        font-size: 1rem;
+        margin: 0 0 10px;
+    }
+
+    .reason-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .reason-chip {
+        background: #f8fafc;
+        border: 1px solid #d7dde7;
+        border-radius: 8px;
+        padding: 9px 10px;
+        color: #111827;
+        font-size: 0.92rem;
+        line-height: 1.35;
+    }
+
+    .reason-chip.predicted {
+        border-color: #9bd0d4;
+        background: #edfafa;
+    }
+
+    .reason-chip.counter {
+        border-color: #e5d2a0;
+        background: #fffaf0;
+    }
+
+    .reason-token {
+        color: #111827;
+        font-weight: 750;
+        margin-bottom: 4px;
+    }
+
+    .reason-meta {
+        color: #4b5563;
+        font-size: 0.82rem;
+        margin-bottom: 7px;
+    }
+
+    .reason-bar {
+        height: 7px;
+        border-radius: 999px;
+        background: #e5e7eb;
+        overflow: hidden;
+    }
+
+    .reason-bar span {
+        display: block;
+        height: 100%;
+        border-radius: 999px;
+        background: #146c75;
+    }
+
+    .reason-chip.counter .reason-bar span {
+        background: #b45309;
+    }
+
+    .reason-copy strong {
+        color: #146c75;
+    }
+
+    .reason-copy {
+        color: #374151;
+        font-size: 0.94rem;
+        line-height: 1.55;
+        margin: 0;
+    }
+
+    .reason-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 8px;
+        margin: 10px 0 12px;
+    }
+
+    .reason-stat {
+        background: #f8fafc;
+        border: 1px solid #d7dde7;
+        border-radius: 8px;
+        padding: 9px 10px;
+    }
+
+    .reason-stat span {
+        display: block;
+        color: #6b7280;
+        font-size: 0.78rem;
+        margin-bottom: 2px;
+    }
+
+    .reason-stat strong {
+        color: #111827;
+        font-size: 0.98rem;
+    }
+
+    .reason-section-title {
+        color: #111827;
+        font-size: 0.93rem;
+        font-weight: 750;
+        margin: 12px 0 4px;
+    }
+
+    .reason-warning {
+        background: #f8fafc;
+        border-left: 4px solid #94a3b8;
+        color: #374151;
+        padding: 9px 11px;
+        border-radius: 6px;
+        margin-top: 12px;
+        font-size: 0.9rem;
+        line-height: 1.45;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -177,6 +324,35 @@ MODEL_CONFIGS = {
         "model_path": MODELS_DIR / "embedding_svm.pkl",
         "kind": "embedding",
     },
+}
+
+STOPWORDS = {
+    "acaba",
+    "ama",
+    "bir",
+    "bu",
+    "da",
+    "de",
+    "diye",
+    "en",
+    "gibi",
+    "in",
+    "ile",
+    "ise",
+    "ki",
+    "mi",
+    "mu",
+    "mü",
+    "nasıl",
+    "ne",
+    "o",
+    "olan",
+    "oldu",
+    "olarak",
+    "şu",
+    "ve",
+    "veya",
+    "ya",
 }
 
 
@@ -232,6 +408,98 @@ def features_for_text(model_key, text):
     return encoder.encode([text], convert_to_numpy=True)
 
 
+def is_explainable_token(token):
+    parts = [part.strip().lower() for part in token.split() if part.strip()]
+    if not parts:
+        return False
+    if all(part in STOPWORDS or len(part) < 3 for part in parts):
+        return False
+    return True
+
+
+def top_tfidf_reasons(model, vectorizer, features, prediction, limit=10):
+    if not hasattr(model, "coef_"):
+        return []
+
+    class_names = list(getattr(model, "classes_", []))
+    if len(class_names) != 2:
+        return []
+
+    feature_names = vectorizer.get_feature_names_out()
+    coef = model.coef_[0]
+    contributions = features.multiply(coef).tocoo()
+    items = []
+
+    for _, feature_index, score in zip(contributions.row, contributions.col, contributions.data):
+        token = feature_names[feature_index]
+        if not is_explainable_token(token):
+            continue
+        target_class = class_names[1] if score >= 0 else class_names[0]
+        items.append(
+            {
+                "token": token,
+                "score": float(score),
+                "strength": abs(float(score)),
+                "target_class": target_class,
+                "aligns_with_prediction": target_class == prediction,
+            }
+        )
+
+    items.sort(key=lambda item: item["strength"], reverse=True)
+    return items[:limit]
+
+
+def tfidf_reference_analysis(text):
+    config = MODEL_CONFIGS["tfidf"]
+    if not config["model_path"].exists() or not config["vectorizer_path"].exists():
+        return None
+
+    model = load_joblib(config["model_path"])
+    vectorizer = load_joblib(config["vectorizer_path"])
+    features = vectorizer.transform([text])
+    prediction = model.predict(features)[0]
+    probabilities = model.predict_proba(features)[0]
+
+    return {
+        "prediction": prediction,
+        "fake_probability": get_probability(model, probabilities, "fake"),
+        "real_probability": get_probability(model, probabilities, "real"),
+        "reasons": top_tfidf_reasons(model, vectorizer, features, prediction),
+    }
+
+
+def model_reason_summary(model_key, result, text):
+    text_length = len(text.split())
+    confidence = result["confidence"]
+
+    if model_key == "tfidf":
+        return (
+            "Bu model metni kelime ve n-gram ağırlıklarına ayırır. Aşağıdaki "
+            "sinyaller, logistic regression kararını sayısal olarak en çok iten "
+            "görünür parçalardır."
+        )
+
+    if confidence < 0.65:
+        certainty = "Model iki sınıf arasında belirgin ayrım kuramadı."
+    elif confidence < 0.80:
+        certainty = "Model bir sınıfa daha yakın buldu ama sonuç tamamen net değil."
+    else:
+        certainty = "Model metni seçilen sınıfa belirgin biçimde yakın buldu."
+
+    length_note = (
+        "Metin kısa olduğu için anlamsal bağlam sınırlı kalmış olabilir."
+        if text_length < 25
+        else "Metin yeterince uzun olduğu için cümle düzeyinde bağlam kullanılabildi."
+    )
+
+    return (
+        "Embedding modeli metni tek tek kelimeler yerine cümle düzeyinde bir anlam "
+        "vektörüne çevirir. Bu yüzden karar kelime listesiyle birebir açıklanamaz; "
+        f"aşağıdaki özet, olasılık farkı ve TF-IDF referans sinyalleriyle okunmalıdır. "
+        f"{certainty} {length_note}"
+    )
+
+
 def analyze_with_model(model_key, text):
     config = MODEL_CONFIGS[model_key]
     model = load_joblib(config["model_path"])
@@ -243,6 +511,15 @@ def analyze_with_model(model_key, text):
     probabilities = model.predict_proba(features)[0]
     fake_probability = get_probability(model, probabilities, "fake")
     real_probability = get_probability(model, probabilities, "real")
+    reasons = []
+
+    if config["kind"] == "tfidf":
+        vectorizer = load_joblib(config["vectorizer_path"])
+        reasons = top_tfidf_reasons(model, vectorizer, features, prediction)
+
+    lexical_reference = None
+    if config["kind"] == "embedding":
+        lexical_reference = tfidf_reference_analysis(text)
 
     return {
         "model_key": model_key,
@@ -251,6 +528,11 @@ def analyze_with_model(model_key, text):
         "fake_probability": fake_probability,
         "real_probability": real_probability,
         "confidence": max(fake_probability, real_probability),
+        "reasons": reasons,
+        "reason_summary": model_reason_summary(model_key, {
+            "confidence": max(fake_probability, real_probability)
+        }, text),
+        "lexical_reference": lexical_reference,
     }
 
 
@@ -312,10 +594,122 @@ def render_single_result(result, text):
 
     st.progress(result["real_probability"], text="Doğru olma skoru")
     st.progress(result["fake_probability"], text="Doğru olmama skoru")
+    render_reason_panel(result)
     st.caption(
         "Not: Bu sonuç doğrulama kararı değil, modelin istatistiksel tahminidir. "
         "Haber yine de kaynak kontrolüyle değerlendirilmelidir."
     )
+
+
+def render_reason_panel(result):
+    reasons = result.get("reasons", [])
+    summary = result.get(
+        "reason_summary",
+        "Model metindeki örüntüleri eğitim verisindeki örneklerle karşılaştırarak karar verdi.",
+    )
+    model_key = result.get("model_key", "tfidf")
+    probability_gap = abs(result["real_probability"] - result["fake_probability"])
+    confidence_label = confidence_text(result["confidence"])
+    stats = (
+        '<div class="reason-stats">'
+        '<div class="reason-stat"><span>Tahmin</span>'
+        f'<strong>{escape(result["prediction"])}</strong></div>'
+        '<div class="reason-stat"><span>Olasılık farkı</span>'
+        f"<strong>{percent(probability_gap)}</strong></div>"
+        '<div class="reason-stat"><span>Güven seviyesi</span>'
+        f"<strong>{escape(confidence_label)}</strong></div>"
+        "</div>"
+    )
+
+    if model_key == "tfidf":
+        body = render_reason_groups(reasons, result["prediction"])
+        limitation = (
+            "Bu açıklama modelin gerçek iç mantığına en yakın okunabilir özetidir; "
+            "yine de haberin doğru olup olmadığını kanıtlamaz, sadece hangi metin "
+            "parçalarının sınıflandırmayı ittiğini gösterir."
+        )
+    else:
+        reference = result.get("lexical_reference")
+        reference_body = ""
+        if reference:
+            reference_body = (
+                f'<div class="reason-section-title">Görünür metin sinyalleri '
+                f'(TF-IDF referansı: {escape(reference["prediction"])}, '
+                f'doğru {percent(reference["real_probability"])}, '
+                f'doğru değil {percent(reference["fake_probability"])})</div>'
+                + render_reason_groups(reference["reasons"], reference["prediction"])
+            )
+        body = (
+            '<div class="reason-warning">'
+            "Embedding modeli kararını cümle anlam vektöründen verdiği için "
+            "tek tek kelime ağırlıkları doğrudan embedding modelinin kararı değildir. "
+            "Aşağıdaki sinyaller, aynı metnin TF-IDF tarafında hangi görünür ifadelerle "
+            "hangi yöne çekildiğini destekleyici olarak gösterir."
+            "</div>"
+            + reference_body
+        )
+        limitation = (
+            "Embedding açıklaması daha soyuttur; çünkü model kelime saymak yerine "
+            "haberin genel anlamını eğitimdeki örneklere göre konumlandırır."
+        )
+
+    html = (
+        '<div class="reason-panel">'
+        "<h4>Neye göre böyle düşünüyor?</h4>"
+        f'<p class="reason-copy">{escape(summary)}</p>'
+        f"{stats}{body}"
+        f'<div class="reason-warning">{escape(limitation)}</div>'
+        "</div>"
+    )
+    st.markdown(html, unsafe_allow_html=True)
+
+
+def confidence_text(confidence):
+    if confidence >= 0.80:
+        return "Yüksek"
+    if confidence >= 0.65:
+        return "Orta"
+    return "Düşük"
+
+
+def render_reason_groups(reasons, prediction):
+    if not reasons:
+        return (
+            '<p class="reason-copy">'
+            "Bu metinde model sözlüğünde güçlü bir görünür kelime/n-gram sinyali bulunamadı."
+            "</p>"
+        )
+
+    predicted = [item for item in reasons if item.get("aligns_with_prediction")]
+    counter = [item for item in reasons if not item.get("aligns_with_prediction")]
+    max_strength = max((item["strength"] for item in reasons), default=1.0)
+
+    html = ""
+    if predicted:
+        html += (
+            f'<div class="reason-section-title">{escape(prediction)} tahminini destekleyen sinyaller</div>'
+            + render_reason_chips(predicted[:6], max_strength, "predicted")
+        )
+    if counter:
+        html += (
+            '<div class="reason-section-title">Karşı yönde görünen sinyaller</div>'
+            + render_reason_chips(counter[:4], max_strength, "counter")
+        )
+    return html
+
+
+def render_reason_chips(items, max_strength, chip_type):
+    chips = []
+    for item in items:
+        width = max(8, min(100, int((item["strength"] / max_strength) * 100)))
+        chips.append(
+            f'<div class="reason-chip {chip_type}">'
+            f'<div class="reason-token">{escape(item["token"])}</div>'
+            f'<div class="reason-meta">{escape(item["target_class"])} yönünde sinyal</div>'
+            f'<div class="reason-bar"><span style="width: {width}%"></span></div>'
+            "</div>"
+        )
+    return f'<div class="reason-grid">{"".join(chips)}</div>'
 
 
 def render_comparison(results, text):
