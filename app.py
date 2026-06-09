@@ -1,4 +1,5 @@
 """Chat-style Streamlit UI for Turkish fake news detection."""
+import csv
 from html import escape
 from pathlib import Path
 
@@ -8,6 +9,7 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parent
 MODELS_DIR = ROOT / "models"
+RESULTS_DIR = ROOT / "results"
 
 EMBEDDING_MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
 
@@ -286,6 +288,7 @@ st.markdown(
         padding: 20px;
         background: #ffffff;
         margin: 8px 0 16px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
     }
 
     .result-box.fake {
@@ -327,6 +330,70 @@ st.markdown(
         color: #374151;
         font-size: 0.98rem;
         line-height: 1.55;
+    }
+
+    .answer-topline {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .probability-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+        margin: 12px 0;
+    }
+
+    .probability-card {
+        background: #ffffff;
+        border: 1px solid #d7dde7;
+        border-radius: 8px;
+        padding: 12px 14px;
+    }
+
+    .probability-card span {
+        display: block;
+        color: #6b7280;
+        font-size: 0.82rem;
+        margin-bottom: 4px;
+    }
+
+    .probability-card strong {
+        color: #111827;
+        font-size: 1.3rem;
+    }
+
+    .mini-bar {
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+
+    .mini-bar span {
+        height: 100%;
+        display: block;
+        background: #146c75;
+        border-radius: 999px;
+    }
+
+    .probability-card.false .mini-bar span {
+        background: #b42318;
+    }
+
+    .trust-note {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        border-radius: 8px;
+        color: #7c2d12;
+        padding: 11px 12px;
+        margin-top: 12px;
+        line-height: 1.45;
+        font-size: 0.92rem;
     }
 
     .small-note {
@@ -920,6 +987,11 @@ def analyze_with_model(model_key, text):
     }
 
 
+@st.cache_data(show_spinner=False, max_entries=64)
+def cached_analyze_with_model(model_key, text):
+    return analyze_with_model(model_key, text)
+
+
 def percent(value):
     return f"{value * 100:.1f}%"
 
@@ -964,6 +1036,54 @@ def consensus_from_results(results):
     }
 
 
+@st.cache_data(show_spinner=False)
+def load_result_metrics():
+    path = RESULTS_DIR / "final_results_table.csv"
+    if not path.exists():
+        return {}
+
+    metrics = {}
+    with path.open("r", encoding="utf-8", newline="") as file:
+        for row in csv.DictReader(file):
+            key = (row.get("Model", ""), row.get("Classifier", ""))
+            metrics[key] = row
+    return metrics
+
+
+def metric_for_result(result):
+    metrics = load_result_metrics()
+    model_key = result.get("model_key")
+    if model_key == "tfidf":
+        return metrics.get(("tfidf", "LogisticRegression"))
+    if model_key == "embedding_lr":
+        return metrics.get(("embedding", "LogisticRegression"))
+    if model_key == "embedding_svm":
+        return metrics.get(("embedding", "SVM"))
+    return None
+
+
+def model_trust_note(result):
+    if result.get("model_key") == "consensus":
+        return (
+            "Bu konsensüs, modellerin ortak eğilimini gösterir. Yine de modeller aynı veri "
+            "ailesinden geldiği için ortak yanılgıları olabilir."
+        )
+
+    metric = metric_for_result(result)
+    metric_text = ""
+    if metric:
+        metric_text = (
+            f" Test setinde F1 {float(metric['F1-Score']):.3f}, "
+            f"accuracy {float(metric['Accuracy']):.3f} ölçülmüş."
+        )
+
+    return (
+        "Bu proje modeli haber doğrulama otoritesi değildir; sınırlı veriyle eğitildiği "
+        "için yeni konulara, eksik bağlama ve manipülatif dile karşı yanılabilir."
+        f"{metric_text} Sonuç, kaynak kontrolüyle birlikte okunmalıdır."
+    )
+
+
 def build_explanation(result, text):
     prediction = result["prediction"]
     confidence = result["confidence"]
@@ -997,31 +1117,49 @@ def build_explanation(result, text):
     return headline, f"{stance} {certainty} {length_note}"
 
 
-def render_single_result(result, text):
+def render_single_result(result, text, compact=False):
     headline, explanation = build_explanation(result, text)
     style = "fake" if result["prediction"] == "fake" else "real"
     verdict = "Doğruya yakın" if result["prediction"] == "real" else "Yanlışa yakın"
+    real_width = int(result["real_probability"] * 100)
+    fake_width = int(result["fake_probability"] * 100)
 
     st.markdown(
         f"""
         <div class="result-box {style}">
-            <div class="verdict-pill">{verdict}</div>
-            <div class="result-label">{headline}</div>
+            <div class="answer-topline">
+                <div>
+                    <div class="verdict-pill">{verdict}</div>
+                    <div class="result-label">{headline}</div>
+                </div>
+            </div>
             <div class="result-copy">{explanation}</div>
             <div class="small-note">Seçilen model: {result.get("model_display_name", result.get("model_label", "TF-IDF + Logistic Regression"))}</div>
+            <div class="probability-grid">
+                <div class="probability-card true">
+                    <span>Doğru olma olasılığı</span>
+                    <strong>{percent(result["real_probability"])}</strong>
+                    <div class="mini-bar"><span style="width: {real_width}%"></span></div>
+                </div>
+                <div class="probability-card false">
+                    <span>Yanlış olma olasılığı</span>
+                    <strong>{percent(result["fake_probability"])}</strong>
+                    <div class="mini-bar"><span style="width: {fake_width}%"></span></div>
+                </div>
+            </div>
+            <div class="trust-note">{escape(model_trust_note(result))}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    left, right = st.columns(2)
-    left.metric("Doğru olma olasılığı", percent(result["real_probability"]))
-    right.metric("Yanlış olma olasılığı", percent(result["fake_probability"]))
+    if compact:
+        return
 
-    st.progress(result["real_probability"], text="Doğru olma skoru")
-    st.progress(result["fake_probability"], text="Yanlış olma skoru")
-    render_reason_panel(result)
-    render_quality_panel(text)
+    with st.expander("Gerekçe sinyalleri", expanded=True):
+        render_reason_panel(result)
+    with st.expander("Metin kalite kontrolü ve sınırlılıklar", expanded=False):
+        render_quality_panel(text)
     st.caption(
         "Not: Bu sonuç doğrulama kararı değil, modelin istatistiksel tahminidir. "
         "Haber yine de kaynak kontrolüyle değerlendirilmelidir."
@@ -1035,6 +1173,11 @@ def render_quality_panel(text):
         '<div class="quality-panel">'
         f"<strong>Metin kalite kontrolü: {word_count} kelime</strong>"
         f"<ul>{items}</ul>"
+        "<p class=\"reason-copy\" style=\"margin-top:10px;\">"
+        "Model sınırlı proje verisiyle eğitildiği için sonuçlar araştırma/demo amacıyla "
+        "okunmalıdır; gerçek doğrulama için haber kaynağı, tarih, bağlam ve bağımsız "
+        "kaynaklar kontrol edilmelidir."
+        "</p>"
         "</div>"
     )
     st.markdown(html, unsafe_allow_html=True)
@@ -1165,9 +1308,11 @@ def render_reason_chips(items, max_strength, chip_type):
     return f'<div class="reason-grid">{"".join(chips)}</div>'
 
 
-def render_comparison(results, text):
+def render_comparison(results, text, compact=False):
     consensus = consensus_from_results(results)
-    render_single_result(consensus, text)
+    render_single_result(consensus, text, compact=compact)
+    if compact:
+        return
     render_model_table(results)
 
 
@@ -1199,11 +1344,11 @@ def render_model_table(results):
     st.markdown(html, unsafe_allow_html=True)
 
 
-def render_assistant_content(content):
+def render_assistant_content(content, compact=False):
     if content.get("mode") == "compare":
-        render_comparison(content["results"], content["text"])
+        render_comparison(content["results"], content["text"], compact=compact)
     else:
-        render_single_result(content["result"], content["text"])
+        render_single_result(content["result"], content["text"], compact=compact)
 
 
 st.markdown(
@@ -1280,10 +1425,19 @@ if "messages" not in st.session_state:
         }
     ]
 
-for message in st.session_state.messages:
+last_assistant_index = max(
+    (
+        index
+        for index, message in enumerate(st.session_state.messages)
+        if message["role"] == "assistant" and isinstance(message["content"], dict)
+    ),
+    default=-1,
+)
+
+for index, message in enumerate(st.session_state.messages):
     with st.chat_message(message["role"]):
         if isinstance(message["content"], dict):
-            render_assistant_content(message["content"])
+            render_assistant_content(message["content"], compact=index != last_assistant_index)
         else:
             st.write(message["content"])
 
@@ -1297,6 +1451,25 @@ if len(st.session_state.messages) <= 1:
         """,
         unsafe_allow_html=True,
     )
+    sample_cols = st.columns(3)
+    samples = [
+        "Deprem sonrası bölgede 10 bin yeni konutun teslim edildiği açıklandı.",
+        "Sosyal medyada yayılan iddiaya göre içme suyuna zararlı madde karıştırıldı.",
+        "Bir bakanlığın yeni uygulamayı gelecek ay başlatacağı duyuruldu.",
+    ]
+    for col, sample in zip(sample_cols, samples):
+        if col.button(sample, use_container_width=True):
+            st.session_state.messages.append({"role": "user", "content": sample})
+            if selected_model_label == "Konsensüs Analizi (Tüm modeller)" and len(available_keys) > 1:
+                with st.spinner("Modeller birlikte düşünüyor..."):
+                    results = [cached_analyze_with_model(key, sample) for key in available_keys]
+                assistant_content = {"mode": "compare", "results": results, "text": sample}
+            else:
+                with st.spinner("Haber analiz ediliyor..."):
+                    result = cached_analyze_with_model(selected_model_key, sample)
+                assistant_content = {"mode": "single", "result": result, "text": sample}
+            st.session_state.messages.append({"role": "assistant", "content": assistant_content})
+            st.rerun()
 
 prompt = st.chat_input("Haber başlığını veya içeriğini buraya yaz...")
 if prompt:
@@ -1304,11 +1477,11 @@ if prompt:
 
     if selected_model_label == "Konsensüs Analizi (Tüm modeller)" and len(available_keys) > 1:
         with st.spinner("Modeller birlikte düşünüyor..."):
-            results = [analyze_with_model(key, prompt) for key in available_keys]
+            results = [cached_analyze_with_model(key, prompt) for key in available_keys]
         assistant_content = {"mode": "compare", "results": results, "text": prompt}
     else:
         with st.spinner("Haber analiz ediliyor..."):
-            result = analyze_with_model(selected_model_key, prompt)
+            result = cached_analyze_with_model(selected_model_key, prompt)
         assistant_content = {"mode": "single", "result": result, "text": prompt}
 
     st.session_state.messages.append({"role": "assistant", "content": assistant_content})
