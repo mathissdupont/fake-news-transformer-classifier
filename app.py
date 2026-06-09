@@ -13,7 +13,7 @@ EMBEDDING_MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
 
 
 st.set_page_config(
-    page_title="Fake News Detector",
+    page_title="Haber Doğruluk Asistanı",
     layout="centered",
     initial_sidebar_state="collapsed",
 )
@@ -23,13 +23,13 @@ st.markdown(
     """
     <style>
     .stApp {
-        background: #f5f7fa;
+        background: #f3f6f8;
         color: #111827;
     }
 
     .block-container {
-        max-width: 920px;
-        padding-top: 32px;
+        max-width: 980px;
+        padding-top: 26px;
         padding-bottom: 36px;
     }
 
@@ -41,13 +41,39 @@ st.markdown(
         background: #ffffff;
         border: 1px solid #d7dde7;
         border-radius: 8px;
-        padding: 20px 22px;
-        margin-bottom: 16px;
+        padding: 22px 24px;
+        margin-bottom: 14px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .brand-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .brand-mark {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: #146c75;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+    }
+
+    .brand-name {
+        color: #374151;
+        font-weight: 700;
+        font-size: 0.95rem;
     }
 
     .app-title h1 {
         color: #111827;
-        font-size: 2rem;
+        font-size: 2.15rem;
         line-height: 1.12;
         margin: 0 0 8px;
     }
@@ -56,14 +82,16 @@ st.markdown(
         color: #4b5563;
         font-size: 1rem;
         margin: 0;
+        max-width: 760px;
     }
 
     .model-panel {
         background: #ffffff;
         border: 1px solid #d7dde7;
         border-radius: 8px;
-        padding: 14px 16px;
-        margin-bottom: 14px;
+        padding: 14px 16px 10px;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
     }
 
     .model-panel strong {
@@ -81,7 +109,7 @@ st.markdown(
         border: 1px solid #d7dde7;
         border-radius: 8px;
         color: #111827;
-        box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
+        box-shadow: 0 6px 18px rgba(17, 24, 39, 0.05);
     }
 
     div[data-testid="stChatMessage"] p,
@@ -105,7 +133,7 @@ st.markdown(
     .result-box {
         border: 1px solid #d7dde7;
         border-radius: 8px;
-        padding: 18px;
+        padding: 20px;
         background: #ffffff;
         margin: 8px 0 16px;
     }
@@ -122,9 +150,27 @@ st.markdown(
 
     .result-label {
         color: #111827;
-        font-size: 1.28rem;
+        font-size: 1.38rem;
         font-weight: 750;
         margin-bottom: 6px;
+    }
+
+    .verdict-pill {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 5px 10px;
+        margin-bottom: 10px;
+        font-size: 0.82rem;
+        font-weight: 750;
+        color: #0f5132;
+        background: #dff5e6;
+        border: 1px solid #a7dfb6;
+    }
+
+    .result-box.fake .verdict-pill {
+        color: #842029;
+        background: #ffe3df;
+        border-color: #f3b6af;
     }
 
     .result-copy {
@@ -162,6 +208,7 @@ st.markdown(
         color: #111827 !important;
         caret-color: #111827 !important;
         border: 1px solid #cfd6e2 !important;
+        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08) !important;
     }
 
     div[data-testid="stChatInput"] textarea::placeholder {
@@ -306,21 +353,21 @@ st.markdown(
 
 MODEL_CONFIGS = {
     "tfidf": {
-        "label": "TF-IDF + Logistic Regression",
-        "description": "Kelime ve n-gram örüntülerine göre hızlı baseline model.",
+        "label": "Kelime Tabanlı Model",
+        "description": "Başlık ve metindeki kelime örüntülerini dikkate alan hızlı model.",
         "model_path": MODELS_DIR / "tfidf_model.pkl",
         "vectorizer_path": MODELS_DIR / "tfidf_vectorizer.pkl",
         "kind": "tfidf",
     },
     "embedding_lr": {
-        "label": "Embedding + Logistic Regression",
-        "description": "Cümle embeddingleriyle anlamsal benzerlik tarafını daha çok yakalar.",
+        "label": "Anlamsal Model",
+        "description": "Metnin genel anlamını ve cümle benzerliğini dikkate alan model.",
         "model_path": MODELS_DIR / "embedding_lr.pkl",
         "kind": "embedding",
     },
     "embedding_svm": {
-        "label": "Embedding + SVM",
-        "description": "Embedding uzayında lineer SVM ile karar verir.",
+        "label": "Anlamsal Karşılaştırma Modeli",
+        "description": "Metni anlam uzayında konumlandırarak karar veren alternatif model.",
         "model_path": MODELS_DIR / "embedding_svm.pkl",
         "kind": "embedding",
     },
@@ -396,6 +443,22 @@ def get_probability(model, probabilities, label):
     if label not in classes:
         return 0.0
     return float(probabilities[classes.index(label)])
+
+
+def display_label(label):
+    return {"real": "doğru", "fake": "yanlış"}.get(label, label)
+
+
+def verdict_title(label):
+    if label == "real":
+        return "Bu haber doğru olma eğiliminde"
+    return "Bu haber yanlış olma eğiliminde"
+
+
+def probability_label(label):
+    if label == "real":
+        return "Doğru yönde sinyal"
+    return "Yanlış yönde sinyal"
 
 
 def features_for_text(model_key, text):
@@ -474,9 +537,9 @@ def model_reason_summary(model_key, result, text):
 
     if model_key == "tfidf":
         return (
-            "Bu model metni kelime ve n-gram ağırlıklarına ayırır. Aşağıdaki "
-            "sinyaller, logistic regression kararını sayısal olarak en çok iten "
-            "görünür parçalardır."
+            "Bu model metni kelime ve kısa ifade ağırlıklarına ayırır. Aşağıdaki "
+            "sinyaller, kararın doğru ya da yanlış tarafına kaymasında en etkili "
+            "görünen parçalardır."
         )
 
     if confidence < 0.65:
@@ -493,9 +556,9 @@ def model_reason_summary(model_key, result, text):
     )
 
     return (
-        "Embedding modeli metni tek tek kelimeler yerine cümle düzeyinde bir anlam "
+        "Anlamsal model metni tek tek kelimeler yerine cümle düzeyinde bir anlam "
         "vektörüne çevirir. Bu yüzden karar kelime listesiyle birebir açıklanamaz; "
-        f"aşağıdaki özet, olasılık farkı ve TF-IDF referans sinyalleriyle okunmalıdır. "
+        f"aşağıdaki özet, olasılık farkı ve kelime tabanlı referans sinyalleriyle okunmalıdır. "
         f"{certainty} {length_note}"
     )
 
@@ -547,14 +610,14 @@ def build_explanation(result, text):
     model_label = result.get("model_label", "Seçilen model")
 
     if prediction == "fake":
-        headline = "Bu haber şüpheli görünüyor."
+        headline = "Bu haber yanlış olma tarafına daha yakın görünüyor."
         stance = (
-            f"{model_label}, metindeki örüntüleri fake haber sınıfına daha yakın buldu."
+            f"{model_label}, metindeki örüntüleri yanlış haber örneklerine daha yakın buldu."
         )
     else:
         headline = "Bu haber doğru olma tarafına daha yakın görünüyor."
         stance = (
-            f"{model_label}, metindeki örüntüleri real haber sınıfına daha yakın buldu."
+            f"{model_label}, metindeki örüntüleri doğru haber örneklerine daha yakın buldu."
         )
 
     if confidence >= 0.80:
@@ -576,13 +639,15 @@ def build_explanation(result, text):
 def render_single_result(result, text):
     headline, explanation = build_explanation(result, text)
     style = "fake" if result["prediction"] == "fake" else "real"
+    verdict = "Doğruya yakın" if result["prediction"] == "real" else "Yanlışa yakın"
 
     st.markdown(
         f"""
         <div class="result-box {style}">
+            <div class="verdict-pill">{verdict}</div>
             <div class="result-label">{headline}</div>
             <div class="result-copy">{explanation}</div>
-            <div class="small-note">Seçilen model: {result.get("model_label", "TF-IDF + Logistic Regression")}</div>
+            <div class="small-note">Seçilen model: {result.get("model_label", "Kelime Tabanlı Model")}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -590,10 +655,10 @@ def render_single_result(result, text):
 
     left, right = st.columns(2)
     left.metric("Doğru olma olasılığı", percent(result["real_probability"]))
-    right.metric("Doğru olmama olasılığı", percent(result["fake_probability"]))
+    right.metric("Yanlış olma olasılığı", percent(result["fake_probability"]))
 
     st.progress(result["real_probability"], text="Doğru olma skoru")
-    st.progress(result["fake_probability"], text="Doğru olmama skoru")
+    st.progress(result["fake_probability"], text="Yanlış olma skoru")
     render_reason_panel(result)
     st.caption(
         "Not: Bu sonuç doğrulama kararı değil, modelin istatistiksel tahminidir. "
@@ -613,7 +678,7 @@ def render_reason_panel(result):
     stats = (
         '<div class="reason-stats">'
         '<div class="reason-stat"><span>Tahmin</span>'
-        f'<strong>{escape(result["prediction"])}</strong></div>'
+        f'<strong>{escape(display_label(result["prediction"]))}</strong></div>'
         '<div class="reason-stat"><span>Olasılık farkı</span>'
         f"<strong>{percent(probability_gap)}</strong></div>"
         '<div class="reason-stat"><span>Güven seviyesi</span>'
@@ -634,22 +699,22 @@ def render_reason_panel(result):
         if reference:
             reference_body = (
                 f'<div class="reason-section-title">Görünür metin sinyalleri '
-                f'(TF-IDF referansı: {escape(reference["prediction"])}, '
+                f'(kelime tabanlı referans: {escape(display_label(reference["prediction"]))}, '
                 f'doğru {percent(reference["real_probability"])}, '
-                f'doğru değil {percent(reference["fake_probability"])})</div>'
+                f'yanlış {percent(reference["fake_probability"])})</div>'
                 + render_reason_groups(reference["reasons"], reference["prediction"])
             )
         body = (
             '<div class="reason-warning">'
-            "Embedding modeli kararını cümle anlam vektöründen verdiği için "
-            "tek tek kelime ağırlıkları doğrudan embedding modelinin kararı değildir. "
-            "Aşağıdaki sinyaller, aynı metnin TF-IDF tarafında hangi görünür ifadelerle "
+            "Anlamsal model kararını cümle anlam vektöründen verdiği için "
+            "tek tek kelime ağırlıkları doğrudan bu modelin kararı değildir. "
+            "Aşağıdaki sinyaller, aynı metnin kelime tabanlı modelde hangi görünür ifadelerle "
             "hangi yöne çekildiğini destekleyici olarak gösterir."
             "</div>"
             + reference_body
         )
         limitation = (
-            "Embedding açıklaması daha soyuttur; çünkü model kelime saymak yerine "
+            "Anlamsal açıklama daha soyuttur; çünkü model kelime saymak yerine "
             "haberin genel anlamını eğitimdeki örneklere göre konumlandırır."
         )
 
@@ -687,7 +752,7 @@ def render_reason_groups(reasons, prediction):
     html = ""
     if predicted:
         html += (
-            f'<div class="reason-section-title">{escape(prediction)} tahminini destekleyen sinyaller</div>'
+            f'<div class="reason-section-title">{escape(display_label(prediction))} tahminini destekleyen sinyaller</div>'
             + render_reason_chips(predicted[:6], max_strength, "predicted")
         )
     if counter:
@@ -705,7 +770,7 @@ def render_reason_chips(items, max_strength, chip_type):
         chips.append(
             f'<div class="reason-chip {chip_type}">'
             f'<div class="reason-token">{escape(item["token"])}</div>'
-            f'<div class="reason-meta">{escape(item["target_class"])} yönünde sinyal</div>'
+            f'<div class="reason-meta">{escape(probability_label(item["target_class"]))}</div>'
             f'<div class="reason-bar"><span style="width: {width}%"></span></div>'
             "</div>"
         )
@@ -728,8 +793,12 @@ def render_assistant_content(content):
 st.markdown(
     """
     <div class="app-title">
-        <h1>Fake News Detection AI</h1>
-        <p>Haber içeriğini yapıştır, seçtiğin model doğru olma ve olmama olasılığını açıklasın.</p>
+        <div class="brand-row">
+            <div class="brand-mark">AI</div>
+            <div class="brand-name">Haber Doğruluk Asistanı</div>
+        </div>
+        <h1>Bir haberin doğru mu yanlış mı olabileceğini analiz et.</h1>
+        <p>Haberi yapıştır; asistan seçilen modele göre olasılıkları, karar güvenini ve metindeki belirgin sinyalleri açıklasın.</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -737,7 +806,7 @@ st.markdown(
 
 available_keys = available_model_keys()
 if not available_keys:
-    st.error("Hiç model dosyası bulunamadı. Önce en az TF-IDF modelini eğitmek gerekiyor.")
+    st.error("Hiç model dosyası bulunamadı. Önce en az kelime tabanlı modeli eğitmek gerekiyor.")
     st.code("python src/train_tfidf.py", language="bash")
     st.stop()
 
@@ -745,8 +814,8 @@ with st.container():
     st.markdown(
         """
         <div class="model-panel">
-            <strong>Model seçimi</strong>
-            <p>Farklı modelleri seçerek aynı haber için olasılıkların nasıl değiştiğini görebilirsin.</p>
+            <strong>Analiz modu</strong>
+            <p>Aynı haberi farklı modellerle kontrol ederek kararların nasıl değiştiğini görebilirsin.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -772,7 +841,7 @@ if missing:
         f"""
         <div class="missing-model">
             Şu an aktif olmayan modeller: {", ".join(missing)}.
-            Embedding modellerini görmek için <code>python src/train_embeddings.py</code>
+            Anlamsal modelleri görmek için <code>python src/train_embeddings.py</code>
             çalıştırılmalı.
         </div>
         """,
@@ -785,7 +854,7 @@ if "messages" not in st.session_state:
             "role": "assistant",
             "content": (
                 "Merhaba. Haber metnini gönder; seçtiğin modele göre doğru olma "
-                "ve doğru olmama olasılığını açıklayayım."
+                "ve yanlış olma olasılığını açıklayayım."
             ),
         }
     ]
@@ -797,7 +866,7 @@ for message in st.session_state.messages:
         else:
             st.write(message["content"])
 
-prompt = st.chat_input("Haber içeriğini buraya yapıştır...")
+prompt = st.chat_input("Haber başlığını veya içeriğini buraya yapıştır...")
 if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
 
