@@ -353,20 +353,23 @@ st.markdown(
 
 MODEL_CONFIGS = {
     "tfidf": {
-        "label": "Kelime Tabanlı Model",
+        "label": "TF-IDF + Logistic Regression",
+        "short_label": "Kelime tabanlı model",
         "description": "Başlık ve metindeki kelime örüntülerini dikkate alan hızlı model.",
         "model_path": MODELS_DIR / "tfidf_model.pkl",
         "vectorizer_path": MODELS_DIR / "tfidf_vectorizer.pkl",
         "kind": "tfidf",
     },
     "embedding_lr": {
-        "label": "Anlamsal Model",
+        "label": "Embedding + Logistic Regression",
+        "short_label": "Anlamsal model",
         "description": "Metnin genel anlamını ve cümle benzerliğini dikkate alan model.",
         "model_path": MODELS_DIR / "embedding_lr.pkl",
         "kind": "embedding",
     },
     "embedding_svm": {
-        "label": "Anlamsal Karşılaştırma Modeli",
+        "label": "Embedding + SVM",
+        "short_label": "Anlamsal karşılaştırma modeli",
         "description": "Metni anlam uzayında konumlandırarak karar veren alternatif model.",
         "model_path": MODELS_DIR / "embedding_svm.pkl",
         "kind": "embedding",
@@ -432,7 +435,7 @@ def available_model_keys():
 def missing_model_labels():
     available = set(available_model_keys())
     return [
-        config["label"]
+        model_display_name(config)
         for key, config in MODEL_CONFIGS.items()
         if key not in available
     ]
@@ -447,6 +450,10 @@ def get_probability(model, probabilities, label):
 
 def display_label(label):
     return {"real": "doğru", "fake": "yanlış"}.get(label, label)
+
+
+def model_display_name(config):
+    return f'{config["label"]} ({config["short_label"]})'
 
 
 def verdict_title(label):
@@ -587,6 +594,8 @@ def analyze_with_model(model_key, text):
     return {
         "model_key": model_key,
         "model_label": config["label"],
+        "model_short_label": config["short_label"],
+        "model_display_name": model_display_name(config),
         "prediction": prediction,
         "fake_probability": fake_probability,
         "real_probability": real_probability,
@@ -607,7 +616,7 @@ def build_explanation(result, text):
     prediction = result["prediction"]
     confidence = result["confidence"]
     text_length = len(text.split())
-    model_label = result.get("model_label", "Seçilen model")
+    model_label = result.get("model_display_name", result.get("model_label", "Seçilen model"))
 
     if prediction == "fake":
         headline = "Bu haber yanlış olma tarafına daha yakın görünüyor."
@@ -647,7 +656,7 @@ def render_single_result(result, text):
             <div class="verdict-pill">{verdict}</div>
             <div class="result-label">{headline}</div>
             <div class="result-copy">{explanation}</div>
-            <div class="small-note">Seçilen model: {result.get("model_label", "Kelime Tabanlı Model")}</div>
+            <div class="small-note">Seçilen model: {result.get("model_display_name", result.get("model_label", "TF-IDF + Logistic Regression"))}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -823,12 +832,13 @@ with st.container():
 
     selected_label = st.selectbox(
         "Kullanılacak model",
-        options=[MODEL_CONFIGS[key]["label"] for key in available_keys],
+        options=[model_display_name(MODEL_CONFIGS[key]) for key in available_keys],
         label_visibility="collapsed",
     )
     selected_model_key = next(
-        key for key in available_keys if MODEL_CONFIGS[key]["label"] == selected_label
+        key for key in available_keys if model_display_name(MODEL_CONFIGS[key]) == selected_label
     )
+    st.caption(MODEL_CONFIGS[selected_model_key]["description"])
     compare_models = st.toggle(
         "Mevcut tüm modellerle karşılaştır",
         value=False,
