@@ -27,6 +27,21 @@ st.markdown(
         color: #111827;
     }
 
+    html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+        background: #f3f6f8 !important;
+        color: #111827 !important;
+    }
+
+    [data-testid="stToolbar"],
+    [data-testid="stDecoration"],
+    [data-testid="stStatusWidget"] {
+        color: #111827 !important;
+    }
+
+    * {
+        color-scheme: light;
+    }
+
     .block-container {
         max-width: 980px;
         padding-top: 26px;
@@ -37,13 +52,73 @@ st.markdown(
         letter-spacing: 0;
     }
 
+    p, span, label, div, button, input, textarea {
+        color: #111827;
+    }
+
+    [data-baseweb="select"] > div,
+    [data-baseweb="popover"],
+    [data-baseweb="menu"],
+    [data-baseweb="option"] {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border-color: #cfd6e2 !important;
+    }
+
+    [data-baseweb="select"] span,
+    [data-baseweb="popover"] span,
+    [data-baseweb="menu"] div,
+    [data-baseweb="option"] div {
+        color: #111827 !important;
+    }
+
+    [data-baseweb="option"]:hover {
+        background: #eef6f7 !important;
+    }
+
+    div[role="listbox"],
+    ul[role="listbox"],
+    li[role="option"],
+    div[role="option"] {
+        background: #ffffff !important;
+        color: #111827 !important;
+    }
+
+    li[role="option"] *,
+    div[role="option"] *,
+    div[role="listbox"] *,
+    ul[role="listbox"] * {
+        background: transparent !important;
+        color: #111827 !important;
+    }
+
+    li[role="option"]:hover,
+    div[role="option"]:hover,
+    li[aria-selected="true"],
+    div[aria-selected="true"] {
+        background: #eef6f7 !important;
+        color: #111827 !important;
+    }
+
+    div[data-baseweb="popover"] > div,
+    div[data-baseweb="popover"] ul,
+    div[data-baseweb="popover"] li {
+        background: #ffffff !important;
+        color: #111827 !important;
+    }
+
+    [data-testid="stCaptionContainer"],
+    [data-testid="stMarkdownContainer"] {
+        color: #111827 !important;
+    }
+
     .app-title {
         background: #ffffff;
         border: 1px solid #d7dde7;
         border-radius: 8px;
-        padding: 22px 24px;
-        margin-bottom: 14px;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        padding: 16px 18px;
+        margin-bottom: 12px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
     }
 
     .brand-row {
@@ -73,9 +148,9 @@ st.markdown(
 
     .app-title h1 {
         color: #111827;
-        font-size: 2.15rem;
+        font-size: 1.45rem;
         line-height: 1.12;
-        margin: 0 0 8px;
+        margin: 0 0 6px;
     }
 
     .app-title p {
@@ -83,6 +158,55 @@ st.markdown(
         font-size: 1rem;
         margin: 0;
         max-width: 760px;
+    }
+
+    .chat-layout-note {
+        color: #4b5563;
+        font-size: 0.92rem;
+        margin: 8px 0 14px;
+    }
+
+    .top-controls {
+        background: #ffffff;
+        border: 1px solid #d7dde7;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+
+    .control-label {
+        color: #111827;
+        font-weight: 800;
+        font-size: 0.95rem;
+        margin-bottom: 2px;
+    }
+
+    .control-copy {
+        color: #4b5563;
+        font-size: 0.86rem;
+        margin-bottom: 8px;
+    }
+
+    .empty-chat {
+        background: #ffffff;
+        border: 1px solid #d7dde7;
+        border-radius: 8px;
+        padding: 22px;
+        margin: 16px 0;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+
+    .empty-chat h3 {
+        color: #111827;
+        margin: 0 0 8px;
+        font-size: 1.25rem;
+    }
+
+    .empty-chat p {
+        color: #4b5563;
+        margin: 0;
     }
 
     .model-panel {
@@ -112,6 +236,12 @@ st.markdown(
         box-shadow: 0 6px 18px rgba(17, 24, 39, 0.05);
     }
 
+    div[data-testid="stChatMessage"] [data-testid="chatAvatarIcon-user"],
+    div[data-testid="stChatMessage"] [data-testid="chatAvatarIcon-assistant"] {
+        background: #eef6f7 !important;
+        color: #146c75 !important;
+    }
+
     div[data-testid="stChatMessage"] p,
     div[data-testid="stChatMessage"] span,
     div[data-testid="stChatMessage"] div {
@@ -128,6 +258,26 @@ st.markdown(
     div[data-testid="stMetric"] label,
     div[data-testid="stMetric"] div {
         color: #111827;
+    }
+
+    div[data-testid="stAlert"] {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border: 1px solid #d7dde7 !important;
+        border-radius: 8px !important;
+    }
+
+    div[data-testid="stAlert"] div,
+    div[data-testid="stAlert"] p {
+        color: #111827 !important;
+    }
+
+    div[data-testid="stProgress"] div {
+        color: #111827 !important;
+    }
+
+    div[role="progressbar"] {
+        background-color: #146c75 !important;
     }
 
     .result-box {
@@ -196,11 +346,29 @@ st.markdown(
     }
 
     .stChatInput {
-        background: #f5f7fa;
+        background: #f3f6f8 !important;
     }
 
     div[data-testid="stChatInput"] {
-        background: #f5f7fa;
+        background: #f3f6f8 !important;
+    }
+
+    [data-testid="stBottomBlockContainer"],
+    [data-testid="stBottom"],
+    [data-testid="stChatInputSubmitButton"],
+    section[data-testid="stBottomBlockContainer"],
+    div:has(> div[data-testid="stChatInput"]),
+    div:has(div[data-testid="stChatInput"]) {
+        background: #f3f6f8 !important;
+        color: #111827 !important;
+    }
+
+    div[style*="position: fixed"]:has(textarea),
+    div[style*="position: sticky"]:has(textarea),
+    div[style*="bottom: 0"]:has(textarea),
+    div[style*="bottom:0"]:has(textarea) {
+        background: #f3f6f8 !important;
+        color: #111827 !important;
     }
 
     div[data-testid="stChatInput"] textarea {
@@ -217,6 +385,25 @@ st.markdown(
     }
 
     div[data-testid="stChatInput"] button {
+        color: #146c75 !important;
+        background: #ffffff !important;
+    }
+
+    div[data-testid="stChatInput"] > div,
+    div[data-testid="stChatInput"] form,
+    div[data-testid="stChatInput"] label {
+        background: #f3f6f8 !important;
+        color: #111827 !important;
+    }
+
+    div[data-testid="stButton"] button {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border: 1px solid #cfd6e2 !important;
+    }
+
+    div[data-testid="stButton"] button:hover {
+        border-color: #146c75 !important;
         color: #146c75 !important;
     }
 
@@ -396,6 +583,79 @@ st.markdown(
         color: #164e53;
         margin-top: 12px;
         line-height: 1.5;
+    }
+
+    .analyzer-shell {
+        background: #ffffff;
+        border: 1px solid #d7dde7;
+        border-radius: 8px;
+        padding: 18px;
+        margin: 16px 0;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.07);
+    }
+
+    .section-kicker {
+        color: #146c75;
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .section-title {
+        color: #111827;
+        font-size: 1.05rem;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    .section-copy {
+        color: #4b5563;
+        font-size: 0.92rem;
+        margin-bottom: 12px;
+    }
+
+    .feature-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .feature-pill {
+        background: #f8fafc;
+        border: 1px solid #e1e7ef;
+        border-radius: 8px;
+        padding: 9px 10px;
+        color: #374151;
+        font-size: 0.88rem;
+    }
+
+    div[data-testid="stTextArea"] textarea {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border: 1px solid #cfd6e2 !important;
+        border-radius: 8px !important;
+        min-height: 190px !important;
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    }
+
+    div[data-testid="stTextArea"] textarea::placeholder {
+        color: #6b7280 !important;
+        opacity: 1 !important;
+    }
+
+    div[data-testid="stButton"] button {
+        border-radius: 8px;
+        min-height: 44px;
+        font-weight: 800;
+    }
+
+    div[role="radiogroup"] {
+        background: #f8fafc;
+        border: 1px solid #d7dde7;
+        border-radius: 8px;
+        padding: 8px 10px;
     }
     </style>
     """,
@@ -953,8 +1213,8 @@ st.markdown(
             <div class="brand-mark">AI</div>
             <div class="brand-name">Haber Doğruluk Asistanı</div>
         </div>
-        <h1>Bir haberin doğru mu yanlış mı olabileceğini analiz et.</h1>
-        <p>Haberi yapıştır; asistan seçilen modele göre olasılıkları, karar güvenini ve metindeki belirgin sinyalleri açıklasın.</p>
+        <h1>Haber metnini gönder, doğruluk analizini konuşarak al.</h1>
+        <p>Modeli üstten seç, haberi alttaki kutuya yaz. Asistan olasılığı, güveni ve gerekçeyi sohbet akışında açıklar.</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -966,33 +1226,38 @@ if not available_keys:
     st.code("python src/train_tfidf.py", language="bash")
     st.stop()
 
-with st.container():
-    st.markdown(
-        """
-        <div class="model-panel">
-            <strong>Analiz modu</strong>
-            <p>Aynı haberi farklı modellerle kontrol ederek kararların nasıl değiştiğini görebilirsin.</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+st.markdown(
+    """
+    <div class="top-controls">
+        <div class="control-label">Model</div>
+        <div class="control-copy">ChatGPT'de model seçer gibi analiz modelini seç.</div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-    selected_label = st.selectbox(
-        "Kullanılacak model",
-        options=[model_display_name(MODEL_CONFIGS[key]) for key in available_keys],
-        label_visibility="collapsed",
-    )
+model_options = [model_display_name(MODEL_CONFIGS[key]) for key in available_keys]
+if len(available_keys) > 1:
+    model_options.append("Konsensüs Analizi (Tüm modeller)")
+
+selected_model_label = st.selectbox(
+    "Model",
+    options=model_options,
+    label_visibility="collapsed",
+)
+
+if st.button("Yeni sohbet", use_container_width=False):
+    st.session_state.pop("messages", None)
+    st.rerun()
+
+selected_model_key = None
+if selected_model_label == "Konsensüs Analizi (Tüm modeller)":
+    st.caption("Tüm modeller çalışır; ortak karar, ortalama olasılık ve karşılaştırma tablosu gösterilir.")
+else:
     selected_model_key = next(
-        key for key in available_keys if model_display_name(MODEL_CONFIGS[key]) == selected_label
+        key for key in available_keys if model_display_name(MODEL_CONFIGS[key]) == selected_model_label
     )
     st.caption(MODEL_CONFIGS[selected_model_key]["description"])
-    compare_models = st.toggle(
-        "Konsensüs analizi yap",
-        value=False,
-        disabled=len(available_keys) < 2,
-    )
-    if compare_models and len(available_keys) > 1:
-        st.caption("Tüm modeller çalışır, ortalama karar ve model karşılaştırma tablosu gösterilir.")
 
 missing = missing_model_labels()
 if missing:
@@ -1011,10 +1276,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "assistant",
-            "content": (
-                "Merhaba. Haber metnini gönder; seçtiğin modele göre doğru olma "
-                "ve yanlış olma olasılığını açıklayayım."
-            ),
+            "content": "Merhaba. Haber başlığını veya içeriğini gönder; seçili modele göre analiz edeyim.",
         }
     ]
 
@@ -1025,27 +1287,29 @@ for message in st.session_state.messages:
         else:
             st.write(message["content"])
 
-prompt = st.chat_input("Haber başlığını veya içeriğini buraya yapıştır...")
+if len(st.session_state.messages) <= 1:
+    st.markdown(
+        """
+        <div class="empty-chat">
+            <h3>Bir haber metniyle başlayalım</h3>
+            <p>Başlık, açıklama veya tam haber içeriğini alttaki kutuya yapıştırabilirsin.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+prompt = st.chat_input("Haber başlığını veya içeriğini buraya yaz...")
 if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    if compare_models and len(available_keys) > 1:
-        with st.spinner("Modeller karşılaştırılıyor..."):
+    if selected_model_label == "Konsensüs Analizi (Tüm modeller)" and len(available_keys) > 1:
+        with st.spinner("Modeller birlikte düşünüyor..."):
             results = [analyze_with_model(key, prompt) for key in available_keys]
-        st.session_state.messages.append(
-            {
-                "role": "assistant",
-                "content": {"mode": "compare", "results": results, "text": prompt},
-            }
-        )
+        assistant_content = {"mode": "compare", "results": results, "text": prompt}
     else:
         with st.spinner("Haber analiz ediliyor..."):
             result = analyze_with_model(selected_model_key, prompt)
-        st.session_state.messages.append(
-            {
-                "role": "assistant",
-                "content": {"mode": "single", "result": result, "text": prompt},
-            }
-        )
+        assistant_content = {"mode": "single", "result": result, "text": prompt}
 
+    st.session_state.messages.append({"role": "assistant", "content": assistant_content})
     st.rerun()
